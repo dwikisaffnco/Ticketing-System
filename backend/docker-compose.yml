@@ -2,38 +2,16 @@ version: "3.8"
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: dockerfile
-    container_name: ticketbackend_app
+    image: wikiarlnm/saffnco_ticket_backend_app:latest
+    container_name: ticketing-backend
     ports:
       - "5000:80"
     volumes:
       - /DATA/AppData/ticketing/backend:/var/www/html
-    depends_on:
-      - db
-    environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=ticket_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=rootpass
+    restart: always
+    networks:
+      - ticketing
 
-  db:
-    image: mysql:8.3
-    container_name: ticket_db
-    restart: unless-stopped
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_DATABASE: ticket_db
-      MYSQL_USER: root
-      MYSQL_PASSWORD: rootpass
-      MYSQL_ROOT_PASSWORD: rootpass
-    volumes:
-      - db_data:/var/lib/mysql
-
-volumes:
-  db_data:
+networks:
+  ticketing:
+    driver: bridge

@@ -2,10 +2,14 @@ version: "3.9"
 
 services:
   ticket-frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: wikiarlnm/saffnco_ticket_frontend_app:latest
     container_name: ticket-frontend
     ports:
       - "3000:80"
     restart: always
+    networks:
+      - ticketing
+
+networks:
+  ticketing:
+    driver: bridge
