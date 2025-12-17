@@ -10,7 +10,7 @@ services:
     ports:
       - "5000:80"
     volumes:
-      - /DATA/AppData/ticket/backend:/var/www/html
+      - ./backend:/var/www/html
     depends_on:
       - db
     environment:
@@ -53,30 +53,9 @@ services:
     networks:
       - ticketing-network
 
-  # Jenkins CI/CD Service
-  jenkins:
-    build:
-      context: ./jenkins
-      dockerfile: Dockerfile
-    container_name: ticketing_jenkins
-    restart: unless-stopped
-    ports:
-      - "8080:8080"      # Jenkins Web UI
-      - "50000:50000"    # Jenkins Agent Port
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock  # Docker socket for Docker-in-Docker
-      - ./:/workspace  # Mount project directory
-    environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
-    networks:
-      - ticketing-network
-    user: root  # Required for Docker socket access
-
 networks:
   ticketing-network:
     driver: bridge
 
 volumes:
   db_data:
-  jenkins_home:
