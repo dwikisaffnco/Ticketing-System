@@ -127,5 +127,23 @@ export const useAuthStore = defineStore("auth", {
         this.loading = false;
       }
     },
+
+    /* ================= CHANGE PASSWORD ================= */
+    async changePassword(payload) {
+      this.loading = true;
+      this.error = null;
+      this.success = null;
+
+      try {
+        const response = await axiosInstance.post("/change-password", payload);
+        this.success = response.data.message;
+        return true;
+      } catch (error) {
+        this.error = handleError(error);
+        return false;
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });
