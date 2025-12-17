@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'ticketing_frontend'
+        CONTAINER_NAME = 'ticketing_frontend'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                checkout scm
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                dir('frontend') {
+                    echo 'Installing npm dependencies...'
+                    sh 'npm install'
+                    
+                    echo 'Building production bundle...'
+                    sh 'npm run build'
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                dir('frontend') {
+                    echo 'Building Docker image...'
+                    sh "docker build -t ${DOCKER_IMAGE}:latest -f Dockerfile ."
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo 'Deploying frontend container...'
+                sh """
+                    # Stop and remove existing container if running
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME} || true
+                    
+                    # Run new container
+                    docker run -d \
+                        --name ${CONTAINER_NAME} \
+                        --network ticketing_ticketing-network \
+                        --restart always \
+                        -p 3000:80 \
+                        ${DOCKER_IMAGE}:latest
+                """
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Frontend deployment completed successfully!'
+        }
+        failure {
+            echo 'Frontend deployment failed!'
+        }
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
+        }
+    }
+}
