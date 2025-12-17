@@ -24,6 +24,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
 RUN apt-get update && apt-get install -y \
     php php-cli php-mbstring php-xml php-zip unzip git && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
+    chmod +x /usr/local/bin/composer && \
     rm -rf /var/lib/apt/lists/*
 
 # Switch back to jenkins user
