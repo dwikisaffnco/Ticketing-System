@@ -1,15 +1,13 @@
 version: "3.9"
 
 services:
-  ticket-frontend:
+  ticketing-frontend:
+    container_name: ticketing-frontend
     image: wikiarlnm/saffnco_ticket_frontend_app:latest
-    container_name: ticket-frontend
+    pull_policy: always
     ports:
       - "3000:80"
-    restart: always
+    privileged: true
+    restart: unless-stopped
     networks:
-      - ticketing
-
-networks:
-  ticketing:
-    driver: bridge
+      - default
