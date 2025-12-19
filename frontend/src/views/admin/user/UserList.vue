@@ -12,6 +12,13 @@ const users = ref([]);
 const search = ref("");
 const selectedDivision = ref("");
 const fileInput = ref(null);
+const uploadProgress = ref(0);
+const selectedUsers = ref([]);
+
+
+
+
+
 
 
 
@@ -38,6 +45,31 @@ const filteredUsers = computed(() => {
     return haystack.includes(q);
   });
 });
+
+const isAllSelected = computed(() => {
+  const deletableUsers = filteredUsers.value.filter((u) => u.id !== user.value?.id);
+  if (deletableUsers.length === 0) return false;
+  return deletableUsers.every((u) => selectedUsers.value.includes(u.id));
+});
+
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    selectedUsers.value = [];
+  } else {
+    selectedUsers.value = filteredUsers.value
+      .filter((u) => u.id !== user.value?.id)
+      .map((u) => u.id);
+  }
+};
+
+const toggleSelection = (id) => {
+  if (selectedUsers.value.includes(id)) {
+    selectedUsers.value = selectedUsers.value.filter((uId) => uId !== id);
+  } else {
+    selectedUsers.value.push(id);
+  }
+};
+
 
 
 const fetchUsers = async () => {
@@ -133,10 +165,15 @@ const handleFileUpload = async (event) => {
   formData.append("file", file);
 
   loading.value = true;
+  uploadProgress.value = 0;
   try {
     const response = await axiosInstance.post("/admin/users/import", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        uploadProgress.value = percentCompleted;
       },
     });
 
@@ -161,7 +198,37 @@ const handleFileUpload = async (event) => {
     Swal.fire("Gagal", typeof err === "string" ? err : "Terjadi kesalahan saat import.", "error");
   } finally {
     loading.value = false;
+    uploadProgress.value = 0;
     event.target.value = ""; // convert to empty string to allow re-uploading same file
+  }
+};
+
+const handleBulkDelete = async () => {
+  if (selectedUsers.value.length === 0) return;
+
+  const result = await Swal.fire({
+    icon: "warning",
+    title: "Hapus user terpilih?",
+    text: `${selectedUsers.value.length} users akan dihapus.`,
+    showCancelButton: true,
+    confirmButtonText: "Ya, hapus",
+    cancelButtonText: "Batal",
+    confirmButtonColor: "#dc2626",
+  });
+
+  if (!result.isConfirmed) return;
+
+  loading.value = true;
+  try {
+    await axiosInstance.delete("/admin/users/bulk", { data: { ids: selectedUsers.value } });
+    await fetchUsers();
+    selectedUsers.value = [];
+    Swal.fire("Berhasil", "Users berhasil dihapus", "success");
+  } catch (e) {
+    const err = handleError(e);
+    Swal.fire("Gagal", typeof err === "string" ? err : "Terjadi kesalahan", "error");
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -207,10 +274,29 @@ onMounted(() => {
       {{ error }}
     </div>
 
+    <!-- Progress Bar -->
+    <!-- Progress Bar -->
+    <div v-if="loading && uploadProgress > 0" class="mb-4">
+      <div class="w-full bg-gray-200 rounded-full h-2.5">
+        <div 
+          class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+          :style="{ width: `${uploadProgress}%` }"
+        ></div>
+      </div>
+      <div class="text-xs text-center mt-2 text-gray-600">{{ uploadProgress }}% Uploading...</div>
+    </div>
+
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-100 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="text-sm font-semibold text-gray-900">Users</div>
         <div class="flex items-center gap-2">
+            <button
+            v-if="selectedUsers.length > 0"
+            @click="handleBulkDelete"
+            class="text-sm text-red-600 hover:text-red-800 font-medium mr-2"
+          >
+            Hapus ({{ selectedUsers.length }})
+          </button>
            <select
             v-model="selectedDivision"
             class="pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
@@ -235,6 +321,9 @@ onMounted(() => {
         <table class="min-w-full divide-y divide-gray-100">
           <thead class="bg-gray-50">
             <tr>
+              <th class="px-4 py-3 text-left">
+                <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+              </th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Divisi</th>
@@ -244,15 +333,24 @@ onMounted(() => {
           </thead>
           <tbody class="bg-white divide-y divide-gray-50">
             <tr v-if="loading">
-              <td class="px-4 py-4 text-sm text-gray-500" colspan="5">Memuat data...</td>
+              <td class="px-4 py-4 text-sm text-gray-500" colspan="6">Memuat data...</td>
             </tr>
             <tr v-else-if="users.length === 0">
-              <td class="px-4 py-4 text-sm text-gray-500" colspan="5">Belum ada user.</td>
+              <td class="px-4 py-4 text-sm text-gray-500" colspan="6">Belum ada user.</td>
             </tr>
             <tr v-else-if="filteredUsers.length === 0">
-              <td class="px-4 py-4 text-sm text-gray-500" colspan="5">User tidak ditemukan.</td>
+              <td class="px-4 py-4 text-sm text-gray-500" colspan="6">User tidak ditemukan.</td>
             </tr>
             <tr v-else v-for="u in filteredUsers" :key="u.id" class="hover:bg-gray-50">
+              <td class="px-4 py-3">
+                <input 
+                  type="checkbox" 
+                  :checked="selectedUsers.includes(u.id)" 
+                  @change="toggleSelection(u.id)"
+                  :disabled="user?.id === u.id"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50" 
+                />
+              </td>
               <td class="px-4 py-3 text-sm text-gray-900">{{ u.name ?? "-" }}</td>
               <td class="px-4 py-3 text-sm text-gray-700">{{ u.email ?? "-" }}</td>
               <td class="px-4 py-3 text-sm text-gray-700">{{ u.division ?? "-" }}</td>

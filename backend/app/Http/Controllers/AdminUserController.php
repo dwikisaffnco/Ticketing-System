@@ -229,6 +229,74 @@ class AdminUserController extends Controller
             ], 500);
         }
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'Forbidden',
+                'data' => null,
+            ], 403);
+        }
+
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:users,id',
+        ]);
+
+        $ids = $request->input('ids');
+        $currentUserId = auth()->id();
+
+        if (in_array($currentUserId, $ids)) {
+             return response()->json([
+                'message' => 'Tidak bisa menghapus akun sendiri dalam pilihan',
+                'data' => null,
+            ], 422);
+        }
+
+        try {
+            DB::transaction(function () use ($ids) {
+                // Get ticket IDs for all users to be deleted
+                $ticketIds = Ticket::query()
+                    ->whereIn('user_id', $ids)
+                    ->pluck('id');
+
+                if ($ticketIds->isNotEmpty()) {
+                    TicketReply::query()->whereIn('ticket_id', $ticketIds)->delete();
+                    Ticket::query()->whereIn('id', $ticketIds)->delete();
+                }
+
+                TicketReply::query()->whereIn('user_id', $ids)->delete();
+
+                DB::table('notifications')
+                    ->where('notifiable_type', User::class)
+                    ->whereIn('notifiable_id', $ids)
+                    ->delete();
+
+                DB::table('sessions')->whereIn('user_id', $ids)->delete();
+
+                User::whereIn('id', $ids)->delete();
+            });
+
+            ActivityLog::record(
+                'admin_user_bulk_delete',
+                'Admin bulk deleted users',
+                ['count' => count($ids), 'ids' => $ids],
+                request()
+            );
+
+            return response()->json([
+                'message' => count($ids) . ' user berhasil dihapus',
+                'data' => null,
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
     public function import(Request $request)
     {
         if (auth()->user()->role !== 'admin') {

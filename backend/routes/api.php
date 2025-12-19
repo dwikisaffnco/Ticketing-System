@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/admin/users/import', [AdminUserController::class, 'import']);
     Route::get('/admin/users/import/template', [AdminUserController::class, 'downloadTemplate']);
+    Route::delete('/admin/users/bulk', [AdminUserController::class, 'bulkDestroy']);
     Route::post('/admin/users', [AdminUserController::class, 'store']);
     Route::get('/admin/users', [AdminUserController::class, 'index']);
     Route::get('/admin/users/{id}', [AdminUserController::class, 'show']);
