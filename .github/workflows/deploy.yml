@@ -46,11 +46,13 @@ jobs:
             # Update Backend
             # Ensure the directory exists or navigate to it safely
             cd /DATA/AppData/ticketing/backend || exit 1
+            git pull
             docker compose pull
             docker compose up -d
 
             # Update Frontend
             cd /DATA/AppData/ticketing/frontend || exit 1
+            git pull
             docker compose pull
             docker compose up -d
             

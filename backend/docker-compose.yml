@@ -8,7 +8,8 @@ services:
     ports:
       - "5000:80"
     volumes:
-      - /DATA/AppData/ticketing/backend:/var/www/html
+      - /DATA/AppData/ticketing/backend/.env:/var/www/html/.env
+      - /DATA/AppData/ticketing/backend/storage:/var/www/html/storage
     privileged: true
     restart: unless-stopped
     networks:
