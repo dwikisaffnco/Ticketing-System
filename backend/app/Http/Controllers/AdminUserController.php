@@ -12,6 +12,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class AdminUserController extends Controller
 {
@@ -227,5 +228,122 @@ class AdminUserController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+    public function import(Request $request)
+    {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'Forbidden',
+                'data' => null,
+            ], 403);
+        }
+
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $file = $request->file('file');
+        $fileContents = file($file->getPathname());
+
+        if (empty($fileContents)) {
+            return response()->json([
+                'message' => 'File kosong',
+                'data' => null,
+            ], 400);
+        }
+
+        $header = str_getcsv(array_shift($fileContents));
+        $requiredHeaders = ['name', 'email', 'password', 'role'];
+
+        // Normalize headers
+        $header = array_map('trim', $header);
+        
+        // Check if required headers exist
+        $missingHeaders = array_diff($requiredHeaders, $header);
+        if (!empty($missingHeaders)) {
+            return response()->json([
+                'message' => 'Format CSV salah. Kolom berikut wajib ada: ' . implode(', ', $missingHeaders),
+                'data' => null,
+            ], 400);
+        }
+
+        $importedCount = 0;
+        $errors = [];
+
+        foreach ($fileContents as $index => $line) {
+            $data = str_getcsv($line);
+            
+            // Skip empty lines
+            if (empty($data) || count($data) < count($requiredHeaders)) {
+                continue;
+            }
+
+            $rowData = array_combine($header, $data);
+
+            try {
+                // Check if user already exists
+                if (User::where('email', $rowData['email'])->exists()) {
+                    $errors[] = "Baris " . ($index + 2) . ": Email {$rowData['email']} sudah digunakan.";
+                    continue;
+                }
+
+                // Check if role is valid
+                $validRoles = ['user', 'admin'];
+                $role = strtolower(trim($rowData['role']));
+
+                if (!in_array($role, $validRoles)) {
+                    $errors[] = "Baris " . ($index + 2) . ": Role '{$rowData['role']}' tidak valid. Role harus 'user' atau 'admin'.";
+                    continue;
+                }
+
+                $user = new User();
+                $user->name = $rowData['name'];
+                $user->email = $rowData['email'];
+                $user->password = Hash::make($rowData['password']);
+                $user->role = $role;
+                $user->division = $rowData['division'] ?? null;
+                $user->position = $rowData['position'] ?? null;
+                $user->save();
+
+                $importedCount++;
+
+            } catch (\Exception $e) {
+                $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
+            }
+        }
+
+        ActivityLog::record(
+            'admin_user_import',
+            'Admin imported users from CSV',
+            ['count' => $importedCount, 'errors' => $errors],
+            request()
+        );
+
+        return response()->json([
+            'message' => "Berhasil mengimpor $importedCount user.",
+            'errors' => $errors,
+        ], 200);
+    }
+
+    public function downloadTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="users_template.csv"',
+        ];
+
+        $columns = ['name', 'email', 'password', 'role', 'division', 'position'];
+
+        $callback = function () use ($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            
+            // Sample data
+            fputcsv($file, ['John Doe', 'john@example.com', 'password123', 'user', 'IT', 'Developer']);
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

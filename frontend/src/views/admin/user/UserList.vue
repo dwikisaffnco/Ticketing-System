@@ -10,19 +10,35 @@ const loading = ref(false);
 const error = ref(null);
 const users = ref([]);
 const search = ref("");
+const selectedDivision = ref("");
+const fileInput = ref(null);
+
+
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 
-const filteredUsers = computed(() => {
-  const q = (search.value ?? "").toString().trim().toLowerCase();
-  if (!q) return users.value;
+const divisions = computed(() => {
+  const divs = new Set(users.value.map((u) => u.division).filter(Boolean));
+  return Array.from(divs).sort();
+});
 
-  return (users.value ?? []).filter((u) => {
+const filteredUsers = computed(() => {
+  let result = users.value ?? [];
+
+  if (selectedDivision.value) {
+    result = result.filter((u) => u.division === selectedDivision.value);
+  }
+
+  const q = (search.value ?? "").toString().trim().toLowerCase();
+  if (!q) return result;
+
+  return result.filter((u) => {
     const haystack = [u?.name, u?.email, u?.division, u?.position].filter(Boolean).join(" ").toLowerCase();
     return haystack.includes(q);
   });
 });
+
 
 const fetchUsers = async () => {
   loading.value = true;
@@ -87,6 +103,68 @@ const handleDelete = async (u) => {
   }
 };
 
+const handleDownloadTemplate = async () => {
+  try {
+    const response = await axiosInstance.get("/admin/users/import/template", {
+      responseType: "blob",
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "users_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (e) {
+    console.error(e);
+    Swal.fire("Gagal", "Gagal mengunduh template.", "error");
+  }
+};
+
+const triggerFileInput = () => {
+  fileInput.value.click();
+};
+
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  loading.value = true;
+  try {
+    const response = await axiosInstance.post("/admin/users/import", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const msg = response?.data?.message || "Import berhasil";
+    const errors = response?.data?.errors || [];
+
+    let text = msg;
+    if (errors.length > 0) {
+      text += "\n\nError:\n" + errors.join("\n");
+    }
+
+    await Swal.fire({
+      icon: errors.length > 0 ? "warning" : "success",
+      title: "Import Selesai",
+      text: text,
+      width: errors.length > 0 ? "800px" : undefined,
+    });
+
+    await fetchUsers();
+  } catch (e) {
+    const err = handleError(e);
+    Swal.fire("Gagal", typeof err === "string" ? err : "Terjadi kesalahan saat import.", "error");
+  } finally {
+    loading.value = false;
+    event.target.value = ""; // convert to empty string to allow re-uploading same file
+  }
+};
+
 onMounted(() => {
   fetchUsers();
 });
@@ -99,13 +177,30 @@ onMounted(() => {
         <h1 class="text-lg font-semibold text-gray-900">List Users</h1>
         <p class="text-sm text-gray-500">Daftar semua akun user/admin.</p>
       </div>
-      <RouterLink
-        :to="{ name: 'admin.users.create' }"
-        class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-        v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
-      >
-        Tambah User
-      </RouterLink>
+      <div class="flex gap-2 ml-2">
+        <button
+          @click="handleDownloadTemplate"
+          class="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+          v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
+        >
+          Template CSV
+        </button>
+        <button
+          @click="triggerFileInput"
+          class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+          v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
+        >
+          Import CSV
+        </button>
+        <input type="file" ref="fileInput" class="hidden" accept=".csv" @change="handleFileUpload" />
+        <RouterLink
+            :to="{ name: 'admin.users.create' }"
+            class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
+        >
+            Tambah User
+        </RouterLink>
+      </div>
     </div>
 
     <div v-if="error && typeof error === 'string'" class="text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
@@ -116,6 +211,13 @@ onMounted(() => {
       <div class="px-4 py-3 border-b border-gray-100 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="text-sm font-semibold text-gray-900">Users</div>
         <div class="flex items-center gap-2">
+           <select
+            v-model="selectedDivision"
+            class="pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
+          >
+            <option value="">Semua Divisi</option>
+            <option v-for="div in divisions" :key="div" :value="div">{{ div }}</option>
+          </select>
           <div class="relative">
             <input
               v-model="search"

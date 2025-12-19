@@ -35,7 +35,7 @@ const logoUrl = `${backendBaseUrl}/logo/Logotype%20Black.png`;
 
 <template>
   <aside class="w-full lg:w-64 bg-white shadow-lg h-screen">
-    <div class="p-6 mt-1 border-b border-gray-100">
+    <div class="p-4 lg:p-6 border-b border-gray-100">
       <div class="flex items-center">
         <RouterLink :to="{ name: 'admin.dashboard' }" class="inline-flex items-center">
           <img :src="logoUrl" alt="Logo" class="h-6 lg:h-7 w-auto" />

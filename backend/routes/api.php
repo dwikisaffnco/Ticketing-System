@@ -24,6 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::post('/notifications/clear', [NotificationController::class, 'clearAll']);
 
+    Route::post('/admin/users/import', [AdminUserController::class, 'import']);
+    Route::get('/admin/users/import/template', [AdminUserController::class, 'downloadTemplate']);
     Route::post('/admin/users', [AdminUserController::class, 'store']);
     Route::get('/admin/users', [AdminUserController::class, 'index']);
     Route::get('/admin/users/{id}', [AdminUserController::class, 'show']);
