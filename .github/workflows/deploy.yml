@@ -36,23 +36,52 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Server via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           port: ${{ secrets.SERVER_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: BACKEND_ENV
           script: |
-            # Update Backend
-            # Ensure the directory exists or navigate to it safely
-            cd /DATA/AppData/ticketing/backend || exit 1
-            docker compose pull
-            docker compose up -d
+            set -e
+            export PATH=$PATH:/usr/local/bin
 
-            # Update Frontend
-            cd /DATA/AppData/ticketing/frontend || exit 1
-            docker compose pull
-            docker compose up -d
+            echo "Deploying Backend..."
+            docker pull wikiarlnm/saffnco_ticket_backend_app:latest
+            docker stop ticketing-backend || true
+            docker rm ticketing-backend || true
             
-            # Clean up
+            # Create temporary env file to handle spaces and empty secrets correctly
+            echo "$BACKEND_ENV" > backend.tmp.env
+            
+            docker run -d \
+              --name ticketing-backend \
+              --restart unless-stopped \
+              --link mysql:mysql \
+              --link redis:redis \
+              -p 2029:80 \
+              --cpu-shares 1024 \
+              --memory 8G \
+              --privileged \
+              --env-file backend.tmp.env \
+              wikiarlnm/saffnco_ticket_backend_app:latest
+            
+            rm backend.tmp.env
+
+            echo "Deploying Frontend..."
+            docker pull wikiarlnm/saffnco_ticket_frontend_app:latest
+            docker stop ticketing-frontend || true
+            docker rm ticketing-frontend || true
+            
+            docker run -d \
+              --name ticketing-frontend \
+              --restart unless-stopped \
+              -p 3000:80 \
+              --cpu-shares 1024 \
+              --memory 8G \
+              wikiarlnm/saffnco_ticket_frontend_app:latest
+
             docker image prune -f
