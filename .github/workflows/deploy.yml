@@ -59,7 +59,7 @@ jobs:
             
             docker run -d \
               --name ticketing-backend \
-              --restart unless-stopped \
+              --restart always \
               --link mysql:mysql \
               --link redis:redis \
               -p 2029:80 \
@@ -78,7 +78,7 @@ jobs:
             
             docker run -d \
               --name ticketing-frontend \
-              --restart unless-stopped \
+              --restart always \
               -p 3000:80 \
               --cpu-shares 1024 \
               --memory 8G \
