@@ -85,10 +85,12 @@ jobs:
               -v /DATA/AppData/ticketing/report:/app/storage/app/attachments \
               wikiarlnm/saffnco_ticket_backend_app:latest
 
-            # Restore attachments if backup exists
-            if [ -d "/DATA/AppData/ticketing/report.backup" ] && [ -z "$(ls -A /DATA/AppData/ticketing/report)" ]; then
+            # Restore attachments if backup exists and has content
+            if [ -d "/DATA/AppData/ticketing/report.backup" ] && [ -n "$(ls -A /DATA/AppData/ticketing/report.backup 2>/dev/null)" ]; then
               echo "Restoring attachments from backup..."
               cp -r /DATA/AppData/ticketing/report.backup/* /DATA/AppData/ticketing/report/ 2>/dev/null || true
+            else
+              echo "No backup found or backup is empty. Skipping restore."
             fi
 
             # connect backend to frontend network only if not connected
