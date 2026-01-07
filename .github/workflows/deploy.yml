@@ -59,17 +59,10 @@ jobs:
             echo "Deploying Backend..."
             docker pull wikiarlnm/saffnco_ticket_backend_app:latest
 
-            # Backup attachments before stopping container
-            if [ -d "/DATA/AppData/ticketing/report" ]; then
-              echo "Backing up existing attachments..."
-              mkdir -p /DATA/AppData/ticketing/report.backup
-              cp -r /DATA/AppData/ticketing/report/* /DATA/AppData/ticketing/report.backup/ 2>/dev/null || true
-            fi
-
             docker stop ticketing-backend || true
             docker rm ticketing-backend || true
 
-            # Ensure attachment directory exists
+            # Ensure attachment directory exists on host
             mkdir -p /DATA/AppData/ticketing/report
 
             echo "$BACKEND_ENV" > backend.tmp.env
@@ -85,13 +78,7 @@ jobs:
               -v /DATA/AppData/ticketing/report:/app/storage/app/attachments \
               wikiarlnm/saffnco_ticket_backend_app:latest
 
-            # Restore attachments if backup exists and has content
-            if [ -d "/DATA/AppData/ticketing/report.backup" ] && [ -n "$(ls -A /DATA/AppData/ticketing/report.backup 2>/dev/null)" ]; then
-              echo "Restoring attachments from backup..."
-              cp -r /DATA/AppData/ticketing/report.backup/* /DATA/AppData/ticketing/report/ 2>/dev/null || true
-            else
-              echo "No backup found or backup is empty. Skipping restore."
-            fi
+            echo "Backend attachment directory mounted to: /DATA/AppData/ticketing/report"
 
             # connect backend to frontend network only if not connected
             if ! docker network inspect ticketing-frontend-net \
