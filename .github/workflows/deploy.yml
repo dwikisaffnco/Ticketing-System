@@ -62,8 +62,10 @@ jobs:
             docker stop ticketing-backend || true
             docker rm ticketing-backend || true
 
-            # Ensure attachment directory exists on host
+            # Ensure attachment directory exists with proper permissions
             mkdir -p /DATA/AppData/ticketing/report
+            chmod -R 755 /DATA/AppData/ticketing/report
+            chown -R www-data:www-data /DATA/AppData/ticketing/report 2>/dev/null || true
 
             echo "$BACKEND_ENV" > backend.tmp.env
 
@@ -77,6 +79,10 @@ jobs:
               --env-file backend.tmp.env \
               -v /DATA/AppData/ticketing/report:/app/storage/app/attachments \
               wikiarlnm/saffnco_ticket_backend_app:latest
+
+            # Wait for container to be ready and setup storage
+            sleep 5
+            docker exec ticketing-backend php artisan storage:link 2>/dev/null || true
 
             echo "Backend attachment directory mounted to: /DATA/AppData/ticketing/report"
 
