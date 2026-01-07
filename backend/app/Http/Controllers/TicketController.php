@@ -195,7 +195,7 @@ class TicketController extends Controller
             $ticket->priority = $data['priority'];
 
             if ($request->hasFile('attachment')) {
-                $ticket->attachment_path = $request->file('attachment')->store('tickets', 'ticket_attachments');
+                $ticket->attachment_path = $request->file('attachment')->store('tickets', 'public');
             }
 
             $ticket->save();
@@ -271,10 +271,10 @@ class TicketController extends Controller
 
             if ($request->hasFile('attachment')) {
                 if ($ticket->attachment_path) {
-                    Storage::disk('ticket_attachments')->delete($ticket->attachment_path);
+                    Storage::disk('public')->delete($ticket->attachment_path);
                 }
 
-                $ticket->attachment_path = $request->file('attachment')->store('tickets', 'ticket_attachments');
+                $ticket->attachment_path = $request->file('attachment')->store('tickets', 'public');
             }
 
             $ticket->save();
@@ -324,12 +324,12 @@ class TicketController extends Controller
             }
 
             if ($ticket->attachment_path) {
-                Storage::disk('ticket_attachments')->delete($ticket->attachment_path);
+                Storage::disk('public')->delete($ticket->attachment_path);
             }
 
             foreach (($ticket->ticketReplies ?? []) as $reply) {
                 if ($reply->attachment_path) {
-                    Storage::disk('ticket_attachments')->delete($reply->attachment_path);
+                    Storage::disk('public')->delete($reply->attachment_path);
                 }
             }
 
@@ -386,7 +386,7 @@ class TicketController extends Controller
             $ticketReply->content = $data['content'];
 
             if ($request->hasFile('attachment')) {
-                $ticketReply->attachment_path = $request->file('attachment')->store('ticket-replies', 'ticket_attachments');
+                $ticketReply->attachment_path = $request->file('attachment')->store('ticket-replies', 'public');
             }
 
             $ticketReply->save();

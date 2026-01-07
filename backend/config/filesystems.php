@@ -60,15 +60,6 @@ return [
             'report' => false,
         ],
 
-        'ticket_attachments' => [
-            'driver' => 'local',
-            'root' => env('TICKET_ATTACHMENT_PATH', 'DATA/AppData/ticketing/report'),
-            'url' => env('APP_URL').'/storage/attachments',
-            'visibility' => 'public',
-            'throw' => false,
-            'report' => false,
-        ],
-
     ],
 
     /*
