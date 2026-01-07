@@ -6,6 +6,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\UserLoginSessionController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -18,6 +19,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/me', [AuthController::class, 'updateProfile']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // User Login Session Management
+    Route::get('/sessions', [UserLoginSessionController::class, 'index']);
+    Route::post('/sessions/verify-ip', [UserLoginSessionController::class, 'verifyIP']);
+    Route::delete('/sessions/{sessionId}', [UserLoginSessionController::class, 'revokeSession']);
+    Route::post('/sessions/revoke-all-others', [UserLoginSessionController::class, 'revokeAllOthers']);
+    Route::post('/sessions/update-activity', [UserLoginSessionController::class, 'updateActivity']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead']);

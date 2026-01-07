@@ -24,7 +24,9 @@ class User extends Authenticatable
         'password',
         'role',
         'division',
-        'position'
+        'position',
+        'last_login_ip',
+        'last_login_at'
     ];
 
     /**
@@ -47,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -58,5 +61,10 @@ class User extends Authenticatable
     public function ticketReplies()
     {
         return $this->hasMany(TicketReply::class);
+    }
+
+    public function loginSessions()
+    {
+        return $this->hasMany(UserLoginSession::class);
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Models\UserLoginSession;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,13 +38,37 @@ class AuthController extends Controller
                 ], 401);
             }
 
+            $ipAddress = $request->ip();
+            $userAgent = $request->userAgent();
+
+            // Update last login info
+            $user->update([
+                'last_login_ip' => $ipAddress,
+                'last_login_at' => now(),
+            ]);
+
+            // Record login session
+            $loginSession = UserLoginSession::create([
+                'user_id' => $user->id,
+                'ip_address' => $ipAddress,
+                'device_name' => UserLoginSession::getDeviceName($userAgent),
+                'user_agent' => $userAgent,
+                'login_at' => now(),
+                'last_activity_at' => now(),
+            ]);
+
             $token = $user->createToken('auth_token')->plainTextToken;
 
             try {
                 ActivityLog::record(
                     'auth_login',
-                    'User login',
-                    ['email' => $user->email, 'role' => $user->role],
+                    'User login from ' . $ipAddress,
+                    [
+                        'email' => $user->email, 
+                        'role' => $user->role,
+                        'ip_address' => $ipAddress,
+                        'device_name' => $loginSession->device_name,
+                    ],
                     $request,
                     $user->id
                 );
@@ -59,7 +84,11 @@ class AuthController extends Controller
                 'message' => 'Login Berhasil',
                 'data' => [
                     'token' => $token,
-                    'user' => new UserResource($user)
+                    'user' => new UserResource($user),
+                    'session' => [
+                        'ip_address' => $ipAddress,
+                        'device_name' => $loginSession->device_name,
+                    ]
                 ]
             ], 200);
         } catch (Exception $e) {
