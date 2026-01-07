@@ -128,6 +128,25 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
+    /* ================= UPDATE PROFILE ================= */
+    async updateProfile(payload) {
+      this.loading = true;
+      this.error = null;
+      this.success = null;
+
+      try {
+        const response = await axiosInstance.patch("/me", payload);
+        this.user = response.data.data;
+        this.success = response.data.message;
+        return true;
+      } catch (error) {
+        this.error = handleError(error);
+        return false;
+      } finally {
+        this.loading = false;
+      }
+    },
+
     /* ================= CHANGE PASSWORD ================= */
     async changePassword(payload) {
       this.loading = true;
