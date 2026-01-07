@@ -48,40 +48,45 @@ jobs:
           script: |
             set -e
             export PATH=$PATH:/usr/local/bin
-
+          
+            echo "Create networks if not exist..."
+            docker network create ticketing-backend-net || true
+            docker network create ticketing-frontend-net || true
+          
             echo "Deploying Backend..."
             docker pull wikiarlnm/saffnco_ticket_backend_app:latest
             docker stop ticketing-backend || true
             docker rm ticketing-backend || true
-            
-            # Create temporary env file to handle spaces and empty secrets correctly
+          
             echo "$BACKEND_ENV" > backend.tmp.env
-            
+          
             docker run -d \
               --name ticketing-backend \
               --restart always \
-              --link mysql:mysql \
-              --link redis:redis \
+              --network ticketing-backend-net \
               -p 5000:80 \
               --cpu-shares 1024 \
               --memory 8G \
-              --privileged \
               --env-file backend.tmp.env \
               wikiarlnm/saffnco_ticket_backend_app:latest
-            
+          
+            # connect backend to frontend network (optional but recommended)
+            docker network connect ticketing-frontend-net ticketing-backend
+          
             rm backend.tmp.env
-
+          
             echo "Deploying Frontend..."
             docker pull wikiarlnm/saffnco_ticket_frontend_app:latest
             docker stop ticketing-frontend || true
             docker rm ticketing-frontend || true
-            
+          
             docker run -d \
               --name ticketing-frontend \
               --restart always \
+              --network ticketing-frontend-net \
               -p 3000:80 \
               --cpu-shares 1024 \
               --memory 8G \
               wikiarlnm/saffnco_ticket_frontend_app:latest
-
+          
             docker image prune -f
