@@ -195,7 +195,7 @@ class TicketController extends Controller
             $ticket->priority = $data['priority'];
 
             if ($request->hasFile('attachment')) {
-                $ticket->attachment_path = $request->file('attachment')->store('tickets', 'public');
+                $ticket->attachment_path = $request->file('attachment')->store('tickets', 'attachments');
             }
 
             $ticket->save();
@@ -271,10 +271,10 @@ class TicketController extends Controller
 
             if ($request->hasFile('attachment')) {
                 if ($ticket->attachment_path) {
-                    Storage::disk('public')->delete($ticket->attachment_path);
+                    Storage::disk('attachments')->delete($ticket->attachment_path);
                 }
 
-                $ticket->attachment_path = $request->file('attachment')->store('tickets', 'public');
+                $ticket->attachment_path = $request->file('attachment')->store('tickets', 'attachments');
             }
 
             $ticket->save();
@@ -386,7 +386,7 @@ class TicketController extends Controller
             $ticketReply->content = $data['content'];
 
             if ($request->hasFile('attachment')) {
-                $ticketReply->attachment_path = $request->file('attachment')->store('ticket-replies', 'public');
+                $ticketReply->attachment_path = $request->file('attachment')->store('ticket-replies', 'attachments');
             }
 
             $ticketReply->save();
