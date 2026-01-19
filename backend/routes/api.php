@@ -53,4 +53,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/ticket/{code}/archive', [TicketController::class, 'archive']);
     Route::patch('/ticket/{code}/unarchive', [TicketController::class, 'unarchive']);
     Route::post('/ticket-reply/{code}', [TicketController::class, 'storeReply']);
+    Route::get('/ticket/{code}/attachment/download', [TicketController::class, 'downloadTicketAttachment']);
+    Route::get('/ticket-reply/{code}/{replyId}/attachment/download', [TicketController::class, 'downloadTicketReplyAttachment']);
 });

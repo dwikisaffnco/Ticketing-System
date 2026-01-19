@@ -485,4 +485,100 @@ class TicketController extends Controller
             ], 500);
         }
     }
+
+    public function downloadTicketAttachment($code)
+    {
+        try {
+            $ticket = Ticket::where('code', $code)->first();
+
+            if (!$ticket) {
+                return response()->json([
+                    'message' => 'Tiket tidak ditemukan'
+                ], 404);
+            }
+
+            if (auth()->user()->role == 'user' && $ticket->user_id != auth()->user()->id) {
+                return response()->json([
+                    'message' => 'Anda tidak diperbolehkan mengakses tiket ini'
+                ], 403);
+            }
+
+            if (!$ticket->attachment_path) {
+                return response()->json([
+                    'message' => 'Tiket tidak memiliki lampiran'
+                ], 404);
+            }
+
+            $filePath = storage_path('app/attachments/' . $ticket->attachment_path);
+
+            if (!file_exists($filePath)) {
+                return response()->json([
+                    'message' => 'File tidak ditemukan'
+                ], 404);
+            }
+
+            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+            $filename = 'ticket-' . $ticket->code . '-attachment.' . $extension;
+
+            return response()->download($filePath, $filename);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Terjadi Kesalahan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function downloadTicketReplyAttachment($code, $replyId)
+    {
+        try {
+            $ticket = Ticket::where('code', $code)->first();
+
+            if (!$ticket) {
+                return response()->json([
+                    'message' => 'Tiket tidak ditemukan'
+                ], 404);
+            }
+
+            if (auth()->user()->role == 'user' && $ticket->user_id != auth()->user()->id) {
+                return response()->json([
+                    'message' => 'Anda tidak diperbolehkan mengakses tiket ini'
+                ], 403);
+            }
+
+            $ticketReply = TicketReply::where('id', $replyId)
+                ->where('ticket_id', $ticket->id)
+                ->first();
+
+            if (!$ticketReply) {
+                return response()->json([
+                    'message' => 'Balasan tiket tidak ditemukan'
+                ], 404);
+            }
+
+            if (!$ticketReply->attachment_path) {
+                return response()->json([
+                    'message' => 'Balasan tiket tidak memiliki lampiran'
+                ], 404);
+            }
+
+            $filePath = storage_path('app/attachments/' . $ticketReply->attachment_path);
+
+            if (!file_exists($filePath)) {
+                return response()->json([
+                    'message' => 'File tidak ditemukan'
+                ], 404);
+            }
+
+            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+            $filename = 'ticket-' . $ticket->code . '-reply-' . $ticketReply->id . '-attachment.' . $extension;
+
+            return response()->download($filePath, $filename);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Terjadi Kesalahan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -6,6 +6,7 @@ import { capitalize } from "lodash";
 import feather from "feather-icons";
 import { DateTime } from "luxon";
 import { useRoute } from "vue-router";
+import axios from "@/plugins/axios";
 
 const ticketStore = useTicketStore();
 const { success, error, loading } = storeToRefs(ticketStore);
@@ -63,6 +64,68 @@ const handleSubmit = async () => {
   }
 
   await fetchTicketDetail();
+};
+
+const downloadTicketAttachment = async () => {
+  if (!ticket.value.code) return;
+
+  try {
+    const response = await axios.get(`/ticket/${ticket.value.code}/attachment/download`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = `ticket-${ticket.value.code}-attachment`;
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Download error:", err);
+  }
+};
+
+const downloadReplyAttachment = async (replyId) => {
+  if (!ticket.value.code || !replyId) return;
+
+  try {
+    const response = await axios.get(`/ticket-reply/${ticket.value.code}/${replyId}/attachment/download`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = `ticket-${ticket.value.code}-reply-${replyId}-attachment`;
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Download error:", err);
+  }
 };
 
 onMounted(async () => {
@@ -124,7 +187,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="flex items-center justify-end space-x-4">
-          <button class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+          <button v-if="ticket.attachment_url" @click="downloadTicketAttachment" class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
             <i data-feather="download" class="w-4 h-4 inline-block mr-2"></i>
             Lampiran
           </button>
@@ -157,9 +220,14 @@ onBeforeUnmount(() => {
             <p>{{ reply.content }}</p>
           </div>
           <div v-if="reply.attachment_url" class="mt-3">
-            <a :href="reply.attachment_url" target="_blank" class="inline-block">
-              <img :src="reply.attachment_url" alt="Lampiran Reply" class="h-28 w-auto rounded-lg border border-gray-200" />
-            </a>
+            <div class="flex items-center space-x-2">
+              <a :href="reply.attachment_url" target="_blank" class="inline-block">
+                <img :src="reply.attachment_url" alt="Lampiran Reply" class="h-28 w-auto rounded-lg border border-gray-200" />
+              </a>
+              <button @click="downloadReplyAttachment(reply.id)" class="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50" title="Download lampiran">
+                <i data-feather="download" class="w-4 h-4"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
