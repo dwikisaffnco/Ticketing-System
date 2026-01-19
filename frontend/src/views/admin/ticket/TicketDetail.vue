@@ -95,6 +95,17 @@ const cancelEdit = async () => {
   feather.replace();
 };
 
+const cancelEditAttachment = () => {
+  if (editAttachmentPreviewUrl.value) {
+    URL.revokeObjectURL(editAttachmentPreviewUrl.value);
+    editAttachmentPreviewUrl.value = null;
+  }
+  editForm.value.attachment = null;
+  // Reset file input
+  const fileInput = document.querySelector('input[type="file"]');
+  if (fileInput) fileInput.value = "";
+};
+
 const handleSaveEdit = async () => {
   const fd = new FormData();
   fd.append("title", editForm.value.title ?? "");
@@ -248,6 +259,56 @@ const downloadReplyAttachment = async (replyId) => {
   }
 };
 
+const exportTicketToText = () => {
+  if (!ticket.value) return;
+
+  const { DateTime: DT } = require("luxon");
+
+  let textContent = `INFORMASI TIKET\n`;
+  textContent += `=`.repeat(50) + `\n\n`;
+  textContent += `Kode Tiket: ${ticket.value.code}\n`;
+  textContent += `Judul: ${ticket.value.title}\n`;
+  textContent += `Status: ${ticket.value.status}\n`;
+  textContent += `Prioritas: ${ticket.value.priority}\n`;
+  textContent += `Dilaporkan oleh: ${ticket.value.user?.name || "-"}\n`;
+  textContent += `Email: ${ticket.value.user?.email || "-"}\n`;
+  textContent += `Dibuat: ${ticket.value.created_at ? DateTime.fromISO(ticket.value.created_at).toFormat("dd MMMM yyyy, HH:mm") : "-"}\n`;
+  if (ticket.value.completed_at) {
+    textContent += `Diselesaikan: ${DateTime.fromISO(ticket.value.completed_at).toFormat("dd MMMM yyyy, HH:mm")}\n`;
+  }
+  textContent += `\nDeskripsi:\n${ticket.value.description || "-"}\n\n`;
+
+  if (ticket.value.attachment_url) {
+    textContent += `Lampiran: ${ticket.value.attachment_url}\n\n`;
+  }
+
+  if (ticket.value.ticket_replies && ticket.value.ticket_replies.length > 0) {
+    textContent += `\nBALASAN (${ticket.value.ticket_replies.length})\n`;
+    textContent += `=`.repeat(50) + `\n\n`;
+
+    ticket.value.ticket_replies.forEach((reply, index) => {
+      textContent += `[${index + 1}] ${reply.user?.name || "Unknown"}\n`;
+      textContent += `    Tanggal: ${reply.created_at ? DateTime.fromISO(reply.created_at).toFormat("dd MMMM yyyy, HH:mm") : "-"}\n`;
+      textContent += `    Pesan: ${reply.content}\n`;
+      if (reply.attachment_url) {
+        textContent += `    Lampiran: ${reply.attachment_url}\n`;
+      }
+      textContent += `\n`;
+    });
+  }
+
+  // Create and download text file
+  const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `ticket-${ticket.value.code}.txt`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+
 // TODO: Implement onMounted hook
 // Hint: Fetch initial ticket details and initialize feather icons
 onMounted(async () => {
@@ -299,30 +360,45 @@ onBeforeUnmount(() => {
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Lampiran (opsional)</label>
 
-                <!-- Show current attachment if exists -->
-                <div v-if="ticket.attachment_url && !editAttachmentPreviewUrl" class="mb-3">
-                  <p class="text-xs text-gray-500 mb-2">Lampiran saat ini:</p>
-                  <div class="flex items-start space-x-3">
+                <!-- If ticket has attachment: Show image with change button -->
+                <div v-if="ticket.attachment_url">
+                  <!-- Show current attachment if not replacing -->
+                  <div v-if="!editAttachmentPreviewUrl" class="space-y-2">
+                    <p class="text-xs text-gray-500">Lampiran saat ini:</p>
                     <a :href="ticket.attachment_url" target="_blank" class="inline-block">
                       <img :src="ticket.attachment_url" alt="Lampiran Ticket" class="h-24 w-auto rounded-lg border border-gray-200" />
                     </a>
-                    <p class="text-xs text-gray-600 mt-1">
-                      <i data-feather="info" class="w-3 h-3 inline-block mr-1"></i>
-                      Upload file baru untuk mengganti lampiran
+                    <div>
+                      <label class="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 cursor-pointer transition">
+                        <i data-feather="edit" class="w-3 h-3 mr-2"></i>
+                        Ganti Lampiran
+                        <input type="file" accept="image/*" @change="handleEditAttachmentChange" class="hidden" />
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Show preview of new attachment if selected -->
+                  <div v-else class="space-y-2">
+                    <p class="text-xs text-green-600 font-medium">
+                      <i data-feather="check-circle" class="w-3 h-3 inline-block mr-1"></i>
+                      Lampiran baru yang akan di-upload:
                     </p>
+                    <img :src="editAttachmentPreviewUrl" alt="Preview Lampiran" class="h-24 w-auto rounded-lg border border-gray-200" />
+                    <div>
+                      <button type="button" @click="cancelEditAttachment" class="inline-flex items-center px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-200">
+                        <i data-feather="x" class="w-3 h-3 mr-2"></i>
+                        Batal Ganti
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <!-- File input -->
-                <input type="file" accept="image/*" @change="handleEditAttachmentChange" class="block w-full text-sm text-gray-600" />
-
-                <!-- Show preview of new attachment if selected -->
-                <div v-if="editAttachmentPreviewUrl" class="mt-2">
-                  <p class="text-xs text-green-600 mb-2">
-                    <i data-feather="check-circle" class="w-3 h-3 inline-block mr-1"></i>
-                    Lampiran baru yang akan di-upload:
-                  </p>
-                  <img :src="editAttachmentPreviewUrl" alt="Preview Lampiran" class="h-24 w-auto rounded-lg border border-gray-200" />
+                <!-- If ticket doesn't have attachment: Show file chooser -->
+                <div v-else>
+                  <input type="file" accept="image/*" @change="handleEditAttachmentChange" class="block w-full text-sm text-gray-600" />
+                  <div v-if="editAttachmentPreviewUrl" class="mt-2">
+                    <img :src="editAttachmentPreviewUrl" alt="Preview Lampiran" class="h-24 w-auto rounded-lg border border-gray-200" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -357,6 +433,11 @@ onBeforeUnmount(() => {
             <button v-if="!editMode && ticket.attachment_url" type="button" class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50" @click="downloadTicketAttachment">
               <i data-feather="download" class="w-4 h-4 inline-block mr-2"></i>
               Lampiran
+            </button>
+
+            <button v-if="!editMode" type="button" @click="exportTicketToText" class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50" title="Export ke format text">
+              <i data-feather="file-text" class="w-4 h-4 inline-block mr-2"></i>
+              Export Text
             </button>
 
             <button
