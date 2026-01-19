@@ -6,7 +6,7 @@ import { capitalize } from "lodash";
 import feather from "feather-icons";
 import { DateTime } from "luxon";
 import { useRoute } from "vue-router";
-import axios from "@/plugins/axios";
+import { axiosInstance as axios } from "@/plugins/axios";
 
 const ticketStore = useTicketStore();
 const { success, error, loading } = storeToRefs(ticketStore);

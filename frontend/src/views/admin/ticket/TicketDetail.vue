@@ -7,7 +7,7 @@ import feather from "feather-icons";
 import { DateTime } from "luxon";
 import { useRoute, useRouter } from "vue-router";
 import Swal from "sweetalert2";
-import axios from "@/plugins/axios";
+import { axiosInstance as axios } from "@/plugins/axios";
 
 const route = useRoute();
 const router = useRouter();
