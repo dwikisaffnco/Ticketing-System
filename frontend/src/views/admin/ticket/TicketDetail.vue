@@ -263,9 +263,30 @@ const downloadReplyAttachment = async (replyId) => {
 // Hint: Fetch initial ticket details and initialize feather icons
 onMounted(async () => {
   await fetchTicketDetail();
+  if (ticket.value.attachment_url) {
+    ticket.value.attachment_url = await fetchSecureImage(ticket.value.attachment_url);
+  }
+  if (ticket.value.ticket_replies?.length > 0) {
+    for (const reply of ticket.value.ticket_replies) {
+      if (reply.attachment_url) {
+        reply.attachment_url = await fetchSecureImage(reply.attachment_url);
+      }
+    }
+  }
 
   feather.replace();
 });
+
+const fetchSecureImage = async (url) => {
+  if (!url) return null;
+  try {
+    const response = await axios.get(url, { responseType: "blob" });
+    return URL.createObjectURL(response.data);
+  } catch (err) {
+    console.error("Failed to fetch image securely:", err);
+    return null;
+  }
+};
 
 onBeforeUnmount(() => {
   if (attachmentPreviewUrl.value) {
