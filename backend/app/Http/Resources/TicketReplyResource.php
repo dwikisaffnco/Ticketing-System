@@ -19,7 +19,7 @@ class TicketReplyResource extends JsonResource
             'id' => $this->id,
             'user' => new UserResource($this->user),
             'content' => $this->content,
-            'attachment_url' => $this->attachment_path ? Storage::disk('public')->url($this->attachment_path) : null,
+            'attachment_url' => $this->attachment_path ? url("api/ticket-reply/{$this->ticket->code}/{$this->id}/attachment/view") : null,
             'created_at' => $this->created_at
         ];
     }
