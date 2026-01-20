@@ -42,7 +42,30 @@ const fetchTicketDetail = async () => {
   const response = await fetchTicket(route.params.code);
 
   ticket.value = response;
+
+  if (ticket.value.attachment_url) {
+    ticket.value.attachment_url = await fetchSecureImage(ticket.value.attachment_url);
+  }
+  if (ticket.value.ticket_replies?.length > 0) {
+    for (const reply of ticket.value.ticket_replies) {
+      if (reply.attachment_url) {
+        reply.attachment_url = await fetchSecureImage(reply.attachment_url);
+      }
+    }
+  }
+
   form.value.status = response.status;
+};
+
+const fetchSecureImage = async (url) => {
+  if (!url) return null;
+  try {
+    const response = await axios.get(url, { responseType: "blob" });
+    return URL.createObjectURL(response.data);
+  } catch (err) {
+    console.error("Failed to fetch image securely:", err);
+    return null;
+  }
 };
 
 const handleSubmit = async () => {
@@ -81,7 +104,7 @@ const downloadTicketAttachment = async () => {
     const contentDisposition = response.headers["content-disposition"];
     let filename = `ticket-${ticket.value.code}-attachment`;
     if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
       if (filenameMatch) {
         filename = filenameMatch[1];
       }
@@ -112,7 +135,7 @@ const downloadReplyAttachment = async (replyId) => {
     const contentDisposition = response.headers["content-disposition"];
     let filename = `ticket-${ticket.value.code}-reply-${replyId}-attachment`;
     if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
       if (filenameMatch) {
         filename = filenameMatch[1];
       }
@@ -126,53 +149,6 @@ const downloadReplyAttachment = async (replyId) => {
   } catch (err) {
     console.error("Download error:", err);
   }
-};
-
-const exportTicketToText = () => {
-  if (!ticket.value) return;
-
-  let textContent = `INFORMASI TIKET\n`;
-  textContent += `=`.repeat(50) + `\n\n`;
-  textContent += `Kode Tiket: ${ticket.value.code}\n`;
-  textContent += `Judul: ${ticket.value.title}\n`;
-  textContent += `Status: ${ticket.value.status}\n`;
-  textContent += `Prioritas: ${ticket.value.priority}\n`;
-  textContent += `Dilaporkan oleh: ${ticket.value.user?.name || "-"}\n`;
-  textContent += `Email: ${ticket.value.user?.email || "-"}\n`;
-  textContent += `Dibuat: ${ticket.value.created_at ? DateTime.fromISO(ticket.value.created_at).toFormat("dd MMMM yyyy, HH:mm") : "-"}\n`;
-  if (ticket.value.completed_at) {
-    textContent += `Diselesaikan: ${DateTime.fromISO(ticket.value.completed_at).toFormat("dd MMMM yyyy, HH:mm")}\n`;
-  }
-  textContent += `\nDeskripsi:\n${ticket.value.description || "-"}\n\n`;
-
-  if (ticket.value.attachment_url) {
-    textContent += `Lampiran: ${ticket.value.attachment_url}\n\n`;
-  }
-
-  if (ticket.value.ticket_replies && ticket.value.ticket_replies.length > 0) {
-    textContent += `\nBALASAN (${ticket.value.ticket_replies.length})\n`;
-    textContent += `=`.repeat(50) + `\n\n`;
-
-    ticket.value.ticket_replies.forEach((reply, index) => {
-      textContent += `[${index + 1}] ${reply.user?.name || "Unknown"}\n`;
-      textContent += `    Tanggal: ${reply.created_at ? DateTime.fromISO(reply.created_at).toFormat("dd MMMM yyyy, HH:mm") : "-"}\n`;
-      textContent += `    Pesan: ${reply.content}\n`;
-      if (reply.attachment_url) {
-        textContent += `    Lampiran: ${reply.attachment_url}\n`;
-      }
-      textContent += `\n`;
-    });
-  }
-
-  const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `ticket-${ticket.value.code}.txt`);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
 };
 
 onMounted(async () => {
@@ -237,11 +213,6 @@ onBeforeUnmount(() => {
           <button v-if="ticket.attachment_url" @click="downloadTicketAttachment" class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50" title="Download Lampiran">
             <i data-feather="download" class="w-4 h-4 inline-block mr-2"></i>
             Lampiran
-          </button>
-
-          <button @click="exportTicketToText" class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50" title="Export ke format text">
-            <i data-feather="file-text" class="w-4 h-4 inline-block mr-2"></i>
-            Export Text
           </button>
         </div>
       </div>
