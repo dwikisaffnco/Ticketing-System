@@ -3,8 +3,8 @@ import Cookies from "js-cookie";
 
 const token = Cookies.get("token");
 
-// axios.defaults.baseURL = "https://ticket-backend.saffncloud.site/api";
-axios.defaults.baseURL = "http://127.0.0.1:8000/api";
+axios.defaults.baseURL = "https://ticket-backend.saffncloud.site/api"; // for production
+// axios.defaults.baseURL = "http://127.0.0.1:8000/api";  // for local development
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
