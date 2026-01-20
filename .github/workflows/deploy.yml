@@ -77,7 +77,7 @@ jobs:
               --cpu-shares 1024 \
               --memory 8G \
               --env-file backend.tmp.env \
-              -v /DATA/AppData/ticketing/report:/app/storage/app/attachments \
+              -v /DATA/AppData/ticketing/report:/var/www/html/storage/app/attachments \
               wikiarlnm/saffnco_ticket_backend_app:latest
 
             # Wait for container to be ready and setup storage
