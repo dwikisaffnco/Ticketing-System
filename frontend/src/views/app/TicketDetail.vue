@@ -98,16 +98,18 @@ const downloadTicketAttachment = async () => {
       responseType: "blob",
     });
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const contentType = response.headers["content-type"];
+    const blob = new Blob([response.data], { type: contentType || "application/octet-stream" });
+    const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
 
     const contentDisposition = response.headers["content-disposition"];
     let filename = `ticket-${ticket.value.code}-attachment`;
     if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+      const filenameMatch = contentDisposition.match(/filename="?([^";\n]+)"?/);
       if (filenameMatch) {
-        filename = filenameMatch[1];
+        filename = filenameMatch[1].replace(/['"]/g, "");
       }
     }
 
@@ -129,16 +131,18 @@ const downloadReplyAttachment = async (replyId) => {
       responseType: "blob",
     });
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const contentType = response.headers["content-type"];
+    const blob = new Blob([response.data], { type: contentType || "application/octet-stream" });
+    const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
 
     const contentDisposition = response.headers["content-disposition"];
     let filename = `ticket-${ticket.value.code}-reply-${replyId}-attachment`;
     if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+      const filenameMatch = contentDisposition.match(/filename="?([^";\n]+)"?/);
       if (filenameMatch) {
-        filename = filenameMatch[1];
+        filename = filenameMatch[1].replace(/['"]/g, "");
       }
     }
 

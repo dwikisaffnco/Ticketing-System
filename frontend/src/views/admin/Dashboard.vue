@@ -30,7 +30,7 @@ watch(
       chart.update();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 onMounted(async () => {
@@ -174,23 +174,31 @@ onMounted(async () => {
         </div>
       </div>
       <div class="divide-y divide-gray-100">
-        <!-- Ticket Item 1 -->
-        <div v-for="ticket in tickets" :key="ticket.code" class="p-4 hover:bg-gray-50">
-          <div class="flex items-center justify-between">
-            <div>
-              <h4 class="text-sm font-medium text-gray-800">{{ ticket.title }}</h4>
-              <p class="text-xs text-gray-500 mt-1">#{{ ticket.code }}</p>
-              <div class="flex items-center mt-2 space-x-2">
-                <span class="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
-                  {{ capitalize(ticket.status) }}
-                </span>
-                <span class="text-xs text-gray-500">
-                  {{ DateTime.fromISO(ticket.created_at).toRelative() }}
-                </span>
+        <div v-for="ticket in tickets" :key="ticket.code" class="relative group">
+          <RouterLink :to="{ name: 'admin.ticket.detail', params: { code: ticket.code } }" class="block p-4 hover:bg-gray-50 transition-colors">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-medium text-gray-800">{{ ticket.title }}</h4>
+                <p class="text-xs text-gray-500 mt-1">#{{ ticket.code }}</p>
+                <div class="flex items-center mt-2 space-x-2">
+                  <span class="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+                    {{ capitalize(ticket.status) }}
+                  </span>
+                  <span class="text-xs text-gray-500">
+                    {{ DateTime.fromISO(ticket.created_at).toRelative() }}
+                  </span>
+                </div>
               </div>
             </div>
+          </RouterLink>
+
+          <div class="absolute right-4 top-4">
             <div class="relative">
-              <button @click="toggleTicketMenu(ticket)" class="text-gray-400 hover:text-gray-600" v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.1 }, tapped: { scale: 0.95 } }">
+              <button
+                @click.stop="toggleTicketMenu(ticket)"
+                class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.1 }, tapped: { scale: 0.95 } }"
+              >
                 <i data-feather="more-vertical" class="w-5 h-5"></i>
               </button>
               <div v-show="ticket.showMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">

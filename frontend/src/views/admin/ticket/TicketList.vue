@@ -27,7 +27,7 @@ watch(
   debounce(async () => {
     await fetchTickets(filters.value);
   }, 300),
-  { deep: true }
+  { deep: true },
 );
 
 // TODO: Implement onMounted hook
@@ -123,9 +123,13 @@ const handleArchive = async (ticket) => {
           </thead>
           <tbody class="bg-white divide-y divide-gray-100">
             <tr v-for="ticket in tickets" :key="ticket.code" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">#{{ ticket.code }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <RouterLink :to="{ name: 'admin.ticket.detail', params: { code: ticket.code } }" class="text-blue-600 hover:text-blue-800"> #{{ ticket.code }} </RouterLink>
+              </td>
               <td class="px-6 py-4">
-                <div class="text-sm text-gray-800">{{ ticket.title }}</div>
+                <RouterLink :to="{ name: 'admin.ticket.detail', params: { code: ticket.code } }" class="text-sm text-gray-800 hover:text-blue-600">
+                  {{ ticket.title }}
+                </RouterLink>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
