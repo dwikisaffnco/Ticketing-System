@@ -68,6 +68,18 @@ const fetchTicketDetail = async () => {
   ticket.value = response;
   form.value.status = response.status;
 
+  // Fetch images securely
+  if (ticket.value.attachment_url) {
+    ticket.value.attachment_url = await fetchSecureImage(ticket.value.attachment_url);
+  }
+  if (ticket.value.ticket_replies?.length > 0) {
+    for (const reply of ticket.value.ticket_replies) {
+      if (reply.attachment_url) {
+        reply.attachment_url = await fetchSecureImage(reply.attachment_url);
+      }
+    }
+  }
+
   if (!editMode.value) {
     editForm.value.title = response.title ?? "";
     editForm.value.description = response.description ?? "";
@@ -263,22 +275,11 @@ const downloadReplyAttachment = async (replyId) => {
 // Hint: Fetch initial ticket details and initialize feather icons
 onMounted(async () => {
   await fetchTicketDetail();
-  if (ticket.value.attachment_url) {
-    ticket.value.attachment_url = await fetchSecureImage(ticket.value.attachment_url);
-  }
-  if (ticket.value.ticket_replies?.length > 0) {
-    for (const reply of ticket.value.ticket_replies) {
-      if (reply.attachment_url) {
-        reply.attachment_url = await fetchSecureImage(reply.attachment_url);
-      }
-    }
-  }
-
   feather.replace();
 });
 
 const fetchSecureImage = async (url) => {
-  if (!url) return null;
+  if (!url || url.startsWith("blob:")) return url; // Don't refetch if already a blob
   try {
     const response = await axios.get(url, { responseType: "blob" });
     return URL.createObjectURL(response.data);

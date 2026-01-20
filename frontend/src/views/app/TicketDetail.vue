@@ -43,6 +43,7 @@ const fetchTicketDetail = async () => {
 
   ticket.value = response;
 
+  // Fetch images securely
   if (ticket.value.attachment_url) {
     ticket.value.attachment_url = await fetchSecureImage(ticket.value.attachment_url);
   }
@@ -58,7 +59,7 @@ const fetchTicketDetail = async () => {
 };
 
 const fetchSecureImage = async (url) => {
-  if (!url) return null;
+  if (!url || url.startsWith("blob:")) return url; // Don't refetch if already a blob
   try {
     const response = await axios.get(url, { responseType: "blob" });
     return URL.createObjectURL(response.data);
