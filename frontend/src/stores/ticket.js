@@ -6,6 +6,12 @@ import router from "@/router";
 export const useTicketStore = defineStore("ticket", {
   state: () => ({
     tickets: [],
+    pagination: {
+      current_page: 1,
+      last_page: 1,
+      total: 0,
+      per_page: 10,
+    },
     loading: false,
     error: null,
     success: null,
@@ -19,6 +25,7 @@ export const useTicketStore = defineStore("ticket", {
         const response = await axiosInstance.get(`ticket`, { params });
 
         this.tickets = response.data.data;
+        this.pagination = response.data.meta;
       } catch (error) {
         this.error = handleError(error);
       } finally {

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, watch } from "vue";
+import { onMounted, watch, nextTick } from "vue";
 import { Chart } from "chart.js/auto";
 import { useDashboardStore } from "@/stores/dashboard";
 import { useTicketStore } from "@/stores/ticket";
@@ -13,8 +13,15 @@ const { statistic } = storeToRefs(dashboardStore);
 const { fetchStatistics } = dashboardStore;
 
 const ticketStore = useTicketStore();
-const { tickets } = storeToRefs(ticketStore);
+const { tickets, pagination } = storeToRefs(ticketStore);
 const { fetchTickets } = ticketStore;
+
+const changePage = async (page) => {
+  await fetchTickets({ page });
+  nextTick(() => {
+    feather.replace();
+  });
+};
 
 const toggleTicketMenu = (ticket) => {
   ticket.showMenu = !ticket.showMenu;
@@ -268,7 +275,7 @@ onMounted(async () => {
           <RouterLink :to="{ name: 'admin.ticket' }" class="text-sm text-blue-600 hover:text-blue-800 font-medium" v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }">Lihat Semua</RouterLink>
         </div>
       </div>
-      <div class="divide-y divide-gray-100">
+      <div class="max-h-[500px] overflow-y-auto divide-y divide-gray-100 custom-scrollbar">
         <div v-for="ticket in tickets" :key="ticket.code" class="relative group">
           <RouterLink :to="{ name: 'admin.ticket.detail', params: { code: ticket.code } }" class="block p-4 hover:bg-gray-50 transition-colors">
             <div class="flex items-center justify-between">
@@ -318,6 +325,20 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+
+      <!-- Pagination Footer -->
+      <div v-if="pagination.last_page > 1" class="p-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl flex items-center justify-between">
+        <p class="text-xs text-gray-500">Menampilkan {{ tickets.length }} dari {{ pagination.total }} tiket</p>
+        <div class="flex items-center space-x-2">
+          <button @click="changePage(pagination.current_page - 1)" :disabled="pagination.current_page === 1" class="p-2 text-gray-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <i data-feather="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <span class="text-xs font-medium text-gray-700"> Halaman {{ pagination.current_page }} dari {{ pagination.last_page }} </span>
+          <button @click="changePage(pagination.current_page + 1)" :disabled="pagination.current_page === pagination.last_page" class="p-2 text-gray-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <i data-feather="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Sidebar Charts -->
@@ -340,3 +361,19 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+</style>

@@ -55,11 +55,24 @@ class TicketController extends Controller
                 $query->where('user_id', auth()->user()->id);
             }
 
-            $tickets = $query->get();
-
+            $perPage = $request->get('per_page', 10);
+            $tickets = $query->paginate($perPage);
+ 
             return response()->json([
                 'message' => 'Data Tiket Berhasil Ditampilkan',
-                'data' => TicketResource::collection($tickets)
+                'data' => TicketResource::collection($tickets),
+                'meta' => [
+                    'current_page' => $tickets->currentPage(),
+                    'last_page' => $tickets->lastPage(),
+                    'per_page' => $tickets->perPage(),
+                    'total' => $tickets->total(),
+                ],
+                'links' => [
+                    'first' => $tickets->url(1),
+                    'last' => $tickets->url($tickets->lastPage()),
+                    'prev' => $tickets->previousPageUrl(),
+                    'next' => $tickets->nextPageUrl(),
+                ]
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
