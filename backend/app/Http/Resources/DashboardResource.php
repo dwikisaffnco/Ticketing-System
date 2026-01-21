@@ -26,6 +26,12 @@ class DashboardResource extends JsonResource
                 'resolved' => $this['status_distribution']['resolved'],
                 'rejected' => $this['status_distribution']['rejected'],
             ],
+            'priority_distribution' => [
+                'low' => $this['priority_distribution']['low'],
+                'medium' => $this['priority_distribution']['medium'],
+                'high' => $this['priority_distribution']['high'],
+            ],
+            'ticket_trends' => $this['ticket_trends'],
         ];
     }
 }

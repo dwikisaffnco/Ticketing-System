@@ -20,14 +20,29 @@ const toggleTicketMenu = (ticket) => {
   ticket.showMenu = !ticket.showMenu;
 };
 
-let chart = null;
+let statusChart = null;
+let priorityChart = null;
+let trendChart = null;
 
 watch(
   statistic,
   () => {
-    if (statistic.value && chart) {
-      chart.data.datasets[0].data = [statistic.value.status_distribution?.open, statistic.value.status_distribution?.onprogress, statistic.value.status_distribution?.resolved, statistic.value.status_distribution?.rejected];
-      chart.update();
+    if (statistic.value) {
+      if (statusChart) {
+        statusChart.data.datasets[0].data = [statistic.value.status_distribution?.open, statistic.value.status_distribution?.onprogress, statistic.value.status_distribution?.resolved, statistic.value.status_distribution?.rejected];
+        statusChart.update();
+      }
+
+      if (priorityChart) {
+        priorityChart.data.datasets[0].data = [statistic.value.priority_distribution?.low, statistic.value.priority_distribution?.medium, statistic.value.priority_distribution?.high];
+        priorityChart.update();
+      }
+
+      if (trendChart) {
+        trendChart.data.labels = statistic.value.ticket_trends?.map((t) => DateTime.fromISO(t.date).toLocaleString(DateTime.DATE_MED));
+        trendChart.data.datasets[0].data = statistic.value.ticket_trends?.map((t) => t.count);
+        trendChart.update();
+      }
     }
   },
   { deep: true },
@@ -37,13 +52,13 @@ onMounted(async () => {
   await fetchTickets();
   await fetchStatistics();
 
+  // Status Chart
   const statusCtx = document.getElementById("statusChart")?.getContext("2d");
-
   if (statusCtx && statistic.value) {
-    chart = new Chart(statusCtx, {
+    statusChart = new Chart(statusCtx, {
       type: "doughnut",
       data: {
-        labels: ["open", "onprogress", "resolved", "rejected"],
+        labels: ["Open", "On Progress", "Resolved", "Rejected"],
         datasets: [
           {
             data: [statistic.value.status_distribution?.open, statistic.value.status_distribution?.onprogress, statistic.value.status_distribution?.resolved, statistic.value.status_distribution?.rejected],
@@ -55,11 +70,73 @@ onMounted(async () => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: "bottom",
-          },
+          legend: { position: "bottom" },
         },
         cutout: "70%",
+      },
+    });
+  }
+
+  // Priority Chart
+  const priorityCtx = document.getElementById("priorityChart")?.getContext("2d");
+  if (priorityCtx && statistic.value) {
+    priorityChart = new Chart(priorityCtx, {
+      type: "bar",
+      data: {
+        labels: ["Low", "Medium", "High"],
+        datasets: [
+          {
+            label: "Tiket",
+            data: [statistic.value.priority_distribution?.low, statistic.value.priority_distribution?.medium, statistic.value.priority_distribution?.high],
+            backgroundColor: ["#94A3B8", "#F59E0B", "#EF4444"],
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          y: { beginAtZero: true, grid: { display: false } },
+          x: { grid: { display: false } },
+        },
+      },
+    });
+  }
+
+  // Trend Chart
+  const trendCtx = document.getElementById("trendChart")?.getContext("2d");
+  if (trendCtx && statistic.value) {
+    trendChart = new Chart(trendCtx, {
+      type: "line",
+      data: {
+        labels: statistic.value.ticket_trends?.map((t) => DateTime.fromISO(t.date).toLocaleString(DateTime.DATE_MED)),
+        datasets: [
+          {
+            label: "Tiket Baru",
+            data: statistic.value.ticket_trends?.map((t) => t.count),
+            borderColor: "#3B82F6",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: "#3B82F6",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } },
+          x: { grid: { display: false } },
+        },
       },
     });
   }
@@ -163,7 +240,25 @@ onMounted(async () => {
     </div>
   </div>
 
-  <!-- Charts and Recent Tickets -->
+  <!-- Ticket Trend Chart -->
+  <div class="grid grid-cols-12 gap-6 mt-6">
+    <div class="col-span-12 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold text-gray-800">Tren Tiket (7 Hari Terakhir)</h3>
+        <div class="flex items-center space-x-2">
+          <span class="flex items-center text-xs text-gray-500">
+            <span class="w-3 h-3 bg-blue-500 rounded-full mr-1"></span>
+            Tiket Baru
+          </span>
+        </div>
+      </div>
+      <div class="relative w-full h-72">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Tickets and Sidebar Charts -->
   <div class="grid grid-cols-12 gap-6 mt-6">
     <!-- Recent Tickets -->
     <div class="col-span-12 lg:col-span-8 bg-white rounded-xl shadow-sm border border-gray-100">
@@ -181,7 +276,15 @@ onMounted(async () => {
                 <h4 class="text-sm font-medium text-gray-800">{{ ticket.title }}</h4>
                 <p class="text-xs text-gray-500 mt-1">#{{ ticket.code }}</p>
                 <div class="flex items-center mt-2 space-x-2">
-                  <span class="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+                  <span
+                    :class="{
+                      'text-blue-700 bg-blue-100': ticket.status === 'open',
+                      'text-yellow-700 bg-yellow-100': ticket.status === 'onprogress',
+                      'text-green-700 bg-green-100': ticket.status === 'resolved',
+                      'text-red-700 bg-red-100': ticket.status === 'rejected',
+                    }"
+                    class="px-2 py-1 text-xs font-medium rounded-full"
+                  >
                     {{ capitalize(ticket.status) }}
                   </span>
                   <span class="text-xs text-gray-500">
@@ -217,11 +320,22 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Status Distribution Chart -->
-    <div class="col-span-12 lg:col-span-4 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-      <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribusi Status</h3>
-      <div class="relative w-full h-64">
-        <canvas id="statusChart"></canvas>
+    <!-- Sidebar Charts -->
+    <div class="col-span-12 lg:col-span-4 space-y-6">
+      <!-- Status Distribution Chart -->
+      <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribusi Status</h3>
+        <div class="relative w-full h-64">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Priority Distribution Chart -->
+      <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribusi Prioritas</h3>
+        <div class="relative w-full h-64">
+          <canvas id="priorityChart"></canvas>
+        </div>
       </div>
     </div>
   </div>

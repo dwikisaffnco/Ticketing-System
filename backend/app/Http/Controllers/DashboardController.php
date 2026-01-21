@@ -42,6 +42,22 @@ class DashboardController extends Controller
             'rejected' => Ticket::whereBetween('created_at', [$currentMonth, $endOfMonth])->where('status', 'rejected')->count(),
         ];
 
+        $priorityDistribution = [
+            'low' => Ticket::whereBetween('created_at', [$currentMonth, $endOfMonth])->where('priority', 'low')->count(),
+            'medium' => Ticket::whereBetween('created_at', [$currentMonth, $endOfMonth])->where('priority', 'medium')->count(),
+            'high' => Ticket::whereBetween('created_at', [$currentMonth, $endOfMonth])->where('priority', 'high')->count(),
+        ];
+
+        $ticketTrends = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $count = Ticket::whereDate('created_at', $date)->count();
+            $ticketTrends[] = [
+                'date' => $date,
+                'count' => $count,
+            ];
+        }
+
         $dashboardData = [
             'total_tickets' => $totalTickets,
             'active_tickets' => $activeTickets,
@@ -49,6 +65,8 @@ class DashboardController extends Controller
             'archived_tickets' => $archivedTickets,
             'avg_resolution_time' => round($avgResolutionTime, 1),
             'status_distribution' => $statusDistribution,
+            'priority_distribution' => $priorityDistribution,
+            'ticket_trends' => $ticketTrends,
         ];
 
         return response()->json([
