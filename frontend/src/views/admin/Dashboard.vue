@@ -266,7 +266,7 @@ onMounted(async () => {
   </div>
 
   <!-- Recent Tickets and Sidebar Charts -->
-  <div class="grid grid-cols-12 gap-6 mt-6">
+  <div class="grid grid-cols-12 gap-6 mt-6 items-start">
     <!-- Recent Tickets -->
     <div class="col-span-12 lg:col-span-8 bg-white rounded-xl shadow-sm border border-gray-100">
       <div class="p-6 border-b border-gray-100">
