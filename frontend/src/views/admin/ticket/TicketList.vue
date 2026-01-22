@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, nextTick } from "vue";
 import { useTicketStore } from "@/stores/ticket";
 import { storeToRefs } from "pinia";
 import { capitalize, debounce } from "lodash";
@@ -26,6 +26,9 @@ watch(
   filters,
   debounce(async () => {
     await fetchTickets(filters.value);
+    nextTick(() => {
+      feather.replace();
+    });
   }, 300),
   { deep: true },
 );
@@ -96,7 +99,7 @@ const handleArchive = async (ticket) => {
             <option value="low">Low</option>
           </select>
           <!-- Date Filter -->
-          <select class="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+          <select v-model="filters.date" class="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
             <option value="">Semua Tanggal</option>
             <option value="today">Hari Ini</option>
             <option value="week">Minggu Ini</option>

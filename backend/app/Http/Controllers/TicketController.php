@@ -51,6 +51,21 @@ class TicketController extends Controller
                 $query->where('priority', $request->priority);
             }
 
+            if ($request->date) {
+                switch ($request->date) {
+                    case 'today':
+                        $query->whereDate('created_at', now()->toDateString());
+                        break;
+                    case 'week':
+                        $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                        break;
+                    case 'month':
+                        $query->whereMonth('created_at', now()->month)
+                            ->whereYear('created_at', now()->year);
+                        break;
+                }
+            }
+
             if (auth()->user()->role == 'user') {
                 $query->where('user_id', auth()->user()->id);
             }
