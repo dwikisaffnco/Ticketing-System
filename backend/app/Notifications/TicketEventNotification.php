@@ -32,7 +32,7 @@ class TicketEventNotification extends Notification
         $content = (string) ($this->payload['meta']['content'] ?? '');
         $content = trim($content);
 
-        $appUrl = 'https://ticketing.saffncloud.site';
+        $appUrl = 'https://ticketing.saffnco.app';
         $actionUrl = $appUrl;
         if (!empty($this->payload['meta']['ticketCode'])) {
             $actionUrl = $appUrl . '/ticket/' . $this->payload['meta']['ticketCode'];

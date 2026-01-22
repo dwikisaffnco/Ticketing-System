@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         ResetPassword::createUrlUsing(function ($notifiable, string $token) {
-            $frontendUrl = 'https://ticketing.saffncloud.site';
+            $frontendUrl = 'https://ticketing.saffnco.app';
 
             return $frontendUrl.'/auth/reset-password?token='.$token.'&email='.urlencode($notifiable->getEmailForPasswordReset());
         });
