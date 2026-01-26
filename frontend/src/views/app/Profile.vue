@@ -31,6 +31,19 @@ watch(
 
 const initialsName = computed(() => user.value?.name ?? "User");
 
+// Master toggle untuk semua notifikasi email
+const allNotificationsEnabled = computed({
+  get: () => {
+    return form.value.notify_email_on_ticket_created && form.value.notify_email_on_ticket_reply && form.value.notify_email_on_ticket_closed && form.value.notify_email_on_ticket_updated;
+  },
+  set: (value) => {
+    form.value.notify_email_on_ticket_created = value;
+    form.value.notify_email_on_ticket_reply = value;
+    form.value.notify_email_on_ticket_closed = value;
+    form.value.notify_email_on_ticket_updated = value;
+  },
+});
+
 const handleSubmit = async () => {
   await updateProfile(form.value);
 };
@@ -109,46 +122,43 @@ const handleSubmit = async () => {
         </div>
 
         <div class="border-t border-gray-200 pt-6 mt-6">
-          <h3 class="text-sm font-semibold text-gray-900 mb-4">Preferensi Notifikasi Email</h3>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-700">Notifikasi saat tiket dibuat</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.notify_email_on_ticket_created" type="checkbox" class="sr-only peer" />
-                <div
-                  class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-                ></div>
-              </label>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-semibold text-gray-900">Preferensi Notifikasi Email</h3>
+              <p class="text-xs text-gray-500 mt-1">Aktifkan untuk menerima semua notifikasi email</p>
             </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input v-model="allNotificationsEnabled" type="checkbox" class="sr-only peer" />
+              <div
+                class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+              ></div>
+            </label>
+          </div>
 
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-700">Notifikasi saat ada balasan tiket</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.notify_email_on_ticket_reply" type="checkbox" class="sr-only peer" />
-                <div
-                  class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-                ></div>
-              </label>
+          <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+            <div class="flex items-center text-sm">
+              <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span :class="allNotificationsEnabled ? 'text-gray-900 font-medium' : 'text-gray-600'">Notifikasi saat tiket dibuat</span>
             </div>
-
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-700">Notifikasi saat tiket ditutup</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.notify_email_on_ticket_closed" type="checkbox" class="sr-only peer" />
-                <div
-                  class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-                ></div>
-              </label>
+            <div class="flex items-center text-sm">
+              <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span :class="allNotificationsEnabled ? 'text-gray-900 font-medium' : 'text-gray-600'">Notifikasi saat ada balasan tiket</span>
             </div>
-
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-700">Notifikasi saat tiket diperbarui</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.notify_email_on_ticket_updated" type="checkbox" class="sr-only peer" />
-                <div
-                  class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-                ></div>
-              </label>
+            <div class="flex items-center text-sm">
+              <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span :class="allNotificationsEnabled ? 'text-gray-900 font-medium' : 'text-gray-600'">Notifikasi saat tiket ditutup</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span :class="allNotificationsEnabled ? 'text-gray-900 font-medium' : 'text-gray-600'">Notifikasi saat tiket diperbarui</span>
             </div>
           </div>
         </div>
