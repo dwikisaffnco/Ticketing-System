@@ -20,7 +20,43 @@ class TicketEventNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        // Check notification preference based on event type
+        $event = $this->payload['meta']['event'] ?? null;
+        $sendEmail = $this->shouldSendEmail($notifiable, $event);
+
+        if ($sendEmail) {
+            return ['database', 'mail'];
+        }
+        
+        return ['database'];
+    }
+
+    private function shouldSendEmail(object $notifiable, ?string $event): bool
+    {
+        if (!$event || !$notifiable) {
+            return true;
+        }
+
+        // Map events to notification preferences
+        $preferenceMap = [
+            'ticket_created' => 'notify_email_on_ticket_created',
+            'user_replied' => 'notify_email_on_ticket_reply',
+            'admin_replied' => 'notify_email_on_ticket_reply',
+            'status_changed' => 'notify_email_on_ticket_updated',
+        ];
+
+        // Check if status changed to 'resolved' (ticket closed)
+        if ($event === 'status_changed' && isset($this->payload['meta']['newStatus']) && $this->payload['meta']['newStatus'] === 'resolved') {
+            return $notifiable->notify_email_on_ticket_closed ?? true;
+        }
+
+        $preferenceKey = $preferenceMap[$event] ?? null;
+        
+        if (!$preferenceKey) {
+            return true;
+        }
+
+        return $notifiable->{$preferenceKey} ?? true;
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -61,3 +97,4 @@ class TicketEventNotification extends Notification
         return $this->payload;
     }
 }
+
