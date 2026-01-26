@@ -110,23 +110,46 @@ const handleSubmit = async () => {
 
         <div class="border-t border-gray-200 pt-6 mt-6">
           <h3 class="text-sm font-semibold text-gray-900 mb-4">Preferensi Notifikasi Email</h3>
-          <div class="space-y-3">
-            <label class="flex items-center cursor-pointer">
-              <input v-model="form.notify_email_on_ticket_created" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" />
-              <span class="ml-3 text-sm text-gray-700">Notifikasi saat tiket dibuat</span>
-            </label>
-            <label class="flex items-center cursor-pointer">
-              <input v-model="form.notify_email_on_ticket_reply" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" />
-              <span class="ml-3 text-sm text-gray-700">Notifikasi saat ada balasan tiket</span>
-            </label>
-            <label class="flex items-center cursor-pointer">
-              <input v-model="form.notify_email_on_ticket_closed" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" />
-              <span class="ml-3 text-sm text-gray-700">Notifikasi saat tiket ditutup</span>
-            </label>
-            <label class="flex items-center cursor-pointer">
-              <input v-model="form.notify_email_on_ticket_updated" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" />
-              <span class="ml-3 text-sm text-gray-700">Notifikasi saat tiket diperbarui</span>
-            </label>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700">Notifikasi saat tiket dibuat</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input v-model="form.notify_email_on_ticket_created" type="checkbox" class="sr-only peer" />
+                <div
+                  class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                ></div>
+              </label>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700">Notifikasi saat ada balasan tiket</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input v-model="form.notify_email_on_ticket_reply" type="checkbox" class="sr-only peer" />
+                <div
+                  class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                ></div>
+              </label>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700">Notifikasi saat tiket ditutup</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input v-model="form.notify_email_on_ticket_closed" type="checkbox" class="sr-only peer" />
+                <div
+                  class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                ></div>
+              </label>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700">Notifikasi saat tiket diperbarui</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input v-model="form.notify_email_on_ticket_updated" type="checkbox" class="sr-only peer" />
+                <div
+                  class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                ></div>
+              </label>
+            </div>
           </div>
         </div>
 
