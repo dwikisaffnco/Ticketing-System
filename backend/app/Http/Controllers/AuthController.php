@@ -156,6 +156,21 @@ class AuthController extends Controller
 
             $user->name = $data['name'];
             $user->email = $data['email'];
+            
+            // Update notification preferences if provided
+            if (isset($data['notify_email_on_ticket_created'])) {
+                $user->notify_email_on_ticket_created = $data['notify_email_on_ticket_created'];
+            }
+            if (isset($data['notify_email_on_ticket_reply'])) {
+                $user->notify_email_on_ticket_reply = $data['notify_email_on_ticket_reply'];
+            }
+            if (isset($data['notify_email_on_ticket_closed'])) {
+                $user->notify_email_on_ticket_closed = $data['notify_email_on_ticket_closed'];
+            }
+            if (isset($data['notify_email_on_ticket_updated'])) {
+                $user->notify_email_on_ticket_updated = $data['notify_email_on_ticket_updated'];
+            }
+            
             $user->save();
 
             return response()->json([

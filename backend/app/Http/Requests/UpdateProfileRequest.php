@@ -25,6 +25,10 @@ class UpdateProfileRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
             ],
+            'notify_email_on_ticket_created' => 'nullable|boolean',
+            'notify_email_on_ticket_reply' => 'nullable|boolean',
+            'notify_email_on_ticket_closed' => 'nullable|boolean',
+            'notify_email_on_ticket_updated' => 'nullable|boolean',
         ];
     }
 }
