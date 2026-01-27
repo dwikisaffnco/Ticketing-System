@@ -122,6 +122,7 @@ const logoUrl = `${backendBaseUrl}/logo/Logotype%20Black.png`;
             <div v-if="showUserMenu" v-motion-pop class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
               <RouterLink :to="{ name: 'app.profile' }" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" @click="showUserMenu = false"> Profil </RouterLink>
               <RouterLink :to="{ name: 'app.settings' }" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" @click="showUserMenu = false"> Pengaturan </RouterLink>
+              <RouterLink :to="{ name: 'app.panduan' }" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" @click="showUserMenu = false"> Panduan </RouterLink>
               <div class="border-t border-gray-100 my-1"></div>
               <a href="#" @click.prevent="handleLogout" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-50"> Keluar </a>
             </div>

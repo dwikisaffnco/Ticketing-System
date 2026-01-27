@@ -27,7 +27,7 @@ watch(
   debounce(async () => {
     await fetchTickets(filters.value);
   }, 300),
-  { deep: true }
+  { deep: true },
 );
 
 // TODO: Implement onMounted hook
@@ -48,14 +48,24 @@ onMounted(async () => {
       <p class="text-sm text-gray-500 mt-1">Kelola dan pantau status tiket Anda</p>
     </div>
 
-    <RouterLink
-      :to="{ name: 'app.ticket.create' }"
-      class="inline-flex items-center mt-4 md:mt-0 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-      v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
-    >
-      <i data-feather="plus" class="w-4 h-4 mr-2"></i>
-      Buat Tiket Baru
-    </RouterLink>
+    <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+      <RouterLink
+        :to="{ name: 'app.panduan' }"
+        class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
+      >
+        <i data-feather="book-open" class="w-4 h-4 mr-2"></i>
+        Panduan
+      </RouterLink>
+      <RouterLink
+        :to="{ name: 'app.ticket.create' }"
+        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
+      >
+        <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+        Buat Tiket Baru
+      </RouterLink>
+    </div>
   </div>
 
   <!-- TODO: Add success alert -->

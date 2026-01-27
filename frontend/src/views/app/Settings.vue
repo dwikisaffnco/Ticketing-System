@@ -124,6 +124,18 @@ const handleSubmit = async () => {
           </div>
         </form>
       </div>
+
+      <div class="mt-8 pt-8 border-t border-gray-200">
+        <h2 class="text-base font-semibold text-gray-900">Butuh bantuan?</h2>
+        <p class="text-sm text-gray-500 mt-1">Pelajari solusi untuk masalah IT yang umum dihadapi.</p>
+
+        <RouterLink :to="{ name: 'app.panduan' }" class="mt-4 inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Baca Panduan Troubleshooting
+        </RouterLink>
+      </div>
     </div>
   </div>
 </template>

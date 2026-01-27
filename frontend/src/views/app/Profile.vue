@@ -74,6 +74,13 @@ const handleSubmit = async () => {
           <div class="text-gray-900 font-medium">{{ user?.role ?? "-" }}</div>
         </div>
       </div>
+
+      <RouterLink :to="{ name: 'app.panduan' }" class="mt-6 w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17s4.5 10.747 10 10.747c5.5 0 10-4.998 10-10.747S17.5 6.253 12 6.253z"></path>
+        </svg>
+        Lihat Panduan
+      </RouterLink>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
@@ -130,7 +137,7 @@ const handleSubmit = async () => {
             <label class="relative inline-flex items-center cursor-pointer">
               <input v-model="allNotificationsEnabled" type="checkbox" class="sr-only peer" />
               <div
-                class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
               ></div>
             </label>
           </div>

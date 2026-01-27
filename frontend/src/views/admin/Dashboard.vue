@@ -275,7 +275,7 @@ onMounted(async () => {
           <RouterLink :to="{ name: 'admin.ticket' }" class="text-sm text-blue-600 hover:text-blue-800 font-medium" v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }">Lihat Semua</RouterLink>
         </div>
       </div>
-      <div class="max-h-[500px] overflow-y-auto divide-y divide-gray-100 custom-scrollbar">
+      <div class="max-h-125 overflow-y-auto divide-y divide-gray-100 custom-scrollbar">
         <div v-for="ticket in tickets" :key="ticket.code" class="relative group">
           <RouterLink :to="{ name: 'admin.ticket.detail', params: { code: ticket.code } }" class="block p-4 hover:bg-gray-50 transition-colors">
             <div class="flex items-center justify-between">

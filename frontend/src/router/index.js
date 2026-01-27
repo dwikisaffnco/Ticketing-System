@@ -22,6 +22,7 @@ import AppTicketDetail from "@/views/app/TicketDetail.vue";
 import AppTicketCreate from "@/views/app/TicketCreate.vue";
 import AppProfile from "@/views/app/Profile.vue";
 import AppSettings from "@/views/app/Settings.vue";
+import AppPanduan from "@/views/app/Panduan.vue";
 import Register from "@/views/auth/Register.vue";
 import ForgotPassword from "@/views/auth/ForgotPassword.vue";
 import ResetPassword from "@/views/auth/ResetPassword.vue";
@@ -81,6 +82,16 @@ const router = createRouter({
             requiresAuth: true,
             role: "user",
             title: "Pengaturan",
+          },
+        },
+        {
+          path: "panduan",
+          name: "app.panduan",
+          component: AppPanduan,
+          meta: {
+            requiresAuth: true,
+            role: "user",
+            title: "Panduan Troubleshooting",
           },
         },
       ],
