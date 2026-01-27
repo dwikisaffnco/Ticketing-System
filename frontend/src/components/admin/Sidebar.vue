@@ -18,7 +18,7 @@ watch(
   (active) => {
     if (active) userMenuOpen.value = true;
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const toggleUserMenu = () => {
@@ -90,6 +90,16 @@ const logoUrl = `${backendBaseUrl}/logo/Logotype%20Black.png`;
       >
         <i data-feather="activity" class="w-5 h-5 mr-3"></i>
         Activity Logs
+      </RouterLink>
+
+      <RouterLink
+        :to="{ name: 'admin.guides' }"
+        class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:border-l-4 hover:border-gray-200"
+        :class="{ 'bg-blue-50 border-l-4 border-blue-600': $route.name === 'admin.guides' }"
+        v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
+      >
+        <i data-feather="book-open" class="w-5 h-5 mr-3"></i>
+        Kelola Panduan
       </RouterLink>
 
       <RouterLink

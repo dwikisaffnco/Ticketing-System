@@ -41,5 +41,8 @@ class DatabaseSeeder extends Seeder
                 'role' => 'admin'
             ]
         );
+
+        // Seed guides and categories
+        $this->call(GuideSeeder::class);
     }
 }

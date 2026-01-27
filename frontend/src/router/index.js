@@ -9,6 +9,7 @@ import AdminEditUser from "@/views/admin/user/EditUser.vue";
 import AdminUserList from "@/views/admin/user/UserList.vue";
 import AdminRoleList from "@/views/admin/user/RoleList.vue";
 import AdminReport from "@/views/admin/Report.vue";
+import AdminGuideManagement from "@/views/admin/GuideManagement.vue";
 import TicketList from "@/views/admin/ticket/TicketList.vue";
 import TicketDetail from "@/views/admin/ticket/TicketDetail.vue";
 import TicketArchive from "@/views/admin/ticket/TicketArchive.vue";
@@ -228,6 +229,16 @@ const router = createRouter({
             requiresAuth: true,
             role: "admin",
             title: "Report",
+          },
+        },
+        {
+          path: "guides",
+          name: "admin.guides",
+          component: AdminGuideManagement,
+          meta: {
+            requiresAuth: true,
+            role: "admin",
+            title: "Kelola Panduan",
           },
         },
       ],

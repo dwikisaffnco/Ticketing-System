@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserLoginSessionController;
@@ -13,6 +14,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+// Public guides endpoint (no auth needed)
+Route::get('/guides/categories', [GuideController::class, 'getCategories']);
+Route::get('/guides', [GuideController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -45,6 +50,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dashboard/statistics', [DashboardController::class, 'getStatistics']);
 
+    // Admin guides management
+    Route::post('/admin/guides/categories', [GuideController::class, 'storeCategory']);
+    Route::put('/admin/guides/categories/{id}', [GuideController::class, 'updateCategory']);
+    Route::delete('/admin/guides/categories/{id}', [GuideController::class, 'destroyCategory']);
+    Route::post('/admin/guides', [GuideController::class, 'store']);
+    Route::get('/admin/guides', [GuideController::class, 'index']);
+    Route::get('/admin/guides/{id}', [GuideController::class, 'show']);
+    Route::put('/admin/guides/{id}', [GuideController::class, 'update']);
+    Route::delete('/admin/guides/{id}', [GuideController::class, 'destroy']);
+
     Route::get('/ticket', [TicketController::class, 'index']);
     Route::get('/ticket/{code}', [TicketController::class, 'show']);
     Route::post('/ticket', [TicketController::class, 'store']);
@@ -58,3 +73,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ticket-reply/{code}/{replyId}/attachment/view', [TicketController::class, 'serveTicketReplyAttachment']);
     Route::get('/ticket-reply/{code}/{replyId}/attachment/download', [TicketController::class, 'downloadTicketReplyAttachment']);
 });
+
