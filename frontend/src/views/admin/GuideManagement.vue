@@ -113,115 +113,270 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Kelola Panduan</h1>
-        <p class="text-sm text-gray-600 mt-1">Kelola panduan troubleshooting IT</p>
-      </div>
-      <button @click="openForm()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">+ Tambah Panduan</button>
-    </div>
-
-    <!-- Filters -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input v-model="filters.search" type="text" placeholder="Cari panduan..." class="border border-gray-200 rounded px-3 py-2 text-sm" @input="fetchGuides" />
-        <select v-model="filters.category_id" class="border border-gray-200 rounded px-3 py-2 text-sm" @change="fetchGuides">
-          <option value="">Semua Kategori</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-            {{ cat.title }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Guides Table -->
-    <div v-if="!showForm" class="bg-white rounded-lg shadow-sm border border-gray-100">
-      <div v-if="loading" class="p-6 text-center text-gray-500">Loading...</div>
-      <table v-else class="w-full">
-        <thead class="border-b border-gray-200">
-          <tr>
-            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Judul</th>
-            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kategori</th>
-            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="guide in guides" :key="guide.id" class="border-b border-gray-100 hover:bg-gray-50">
-            <td class="px-6 py-3 text-sm text-gray-900">{{ guide.title }}</td>
-            <td class="px-6 py-3 text-sm text-gray-600">{{ guide.category?.title }}</td>
-            <td class="px-6 py-3 text-sm">
-              <span :class="['px-2 py-1 rounded text-xs font-medium', guide.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800']">
-                {{ guide.is_active ? "Aktif" : "Nonaktif" }}
-              </span>
-            </td>
-            <td class="px-6 py-3 text-sm space-x-2">
-              <button @click="openForm(guide)" class="text-blue-600 hover:text-blue-700 font-medium">Edit</button>
-              <button @click="deleteGuide(guide.id)" class="text-red-600 hover:text-red-700 font-medium">Hapus</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div v-if="guides.length === 0" class="p-6 text-center text-gray-500">Tidak ada panduan</div>
-    </div>
-
-    <!-- Form Modal -->
-    <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold text-gray-900">
-            {{ editingGuide ? "Edit Panduan" : "Tambah Panduan" }}
-          </h2>
-          <button @click="closeForm()" class="text-gray-400 hover:text-gray-600">✕</button>
+  <div class="min-h-screen from-gray-50 to-gray-100 py-6">
+    <div class="max-w-7xl mx-auto px-4">
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Kelola Panduan</h1>
+            <p class="text-gray-600">Tambah, edit, atau hapus panduan troubleshooting IT</p>
+          </div>
+          <button @click="openForm()" class="px-6 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Panduan
+          </button>
         </div>
 
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-            <select v-model="form.category_id" class="w-full border border-gray-200 rounded px-3 py-2 text-sm" required>
-              <option :value="null">Pilih Kategori</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                {{ cat.title }}
-              </option>
-            </select>
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+            <p class="text-sm text-gray-600">Total Panduan</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ guides.length }}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+            <p class="text-sm text-gray-600">Panduan Aktif</p>
+            <p class="text-3xl font-bold text-green-600 mt-1">{{ guides.filter((g) => g.is_active).length }}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+            <p class="text-sm text-gray-600">Panduan Nonaktif</p>
+            <p class="text-3xl font-bold text-gray-600 mt-1">{{ guides.filter((g) => !g.is_active).length }}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+            <p class="text-sm text-gray-600">Total Kategori</p>
+            <p class="text-3xl font-bold text-blue-600 mt-1">{{ categories.length }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
+        <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+            ></path>
+          </svg>
+          Filter & Cari
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input
+              v-model="filters.search"
+              type="text"
+              placeholder="Cari panduan..."
+              class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              @input="fetchGuides"
+            />
+          </div>
+          <select v-model="filters.category_id" class="pl-4 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" @change="fetchGuides">
+            <option value="">Semua Kategori</option>
+            <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+              {{ cat.title }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Guides Table -->
+      <div v-if="!showForm" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Loading State -->
+        <div v-if="loading" class="flex items-center justify-center h-96">
+          <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-600 font-medium">Memuat panduan...</p>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <table v-else class="w-full">
+          <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Judul</th>
+              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Kategori</th>
+              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Solusi</th>
+              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
+              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr v-for="guide in guides" :key="guide.id" class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4">
+                <div>
+                  <p class="font-medium text-gray-900">{{ guide.title }}</p>
+                  <p class="text-xs text-gray-500 mt-1 line-clamp-1">{{ guide.problem }}</p>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">{{ guide.category?.icon }}</span>
+                  <span class="text-sm text-gray-600">{{ guide.category?.title }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5.951-1.429 5.951 1.429a1 1 0 001.169-1.409l-7-14z"></path>
+                  </svg>
+                  {{ guide.solutions?.length || 0 }} solusi
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span :class="['inline-flex items-center px-3 py-1 rounded-full text-xs font-medium', guide.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800']">
+                  <span class="w-2 h-2 rounded-full mr-2" :class="guide.is_active ? 'bg-green-600' : 'bg-gray-600'"></span>
+                  {{ guide.is_active ? "Aktif" : "Nonaktif" }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <button @click="openForm(guide)" class="px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit
+                  </button>
+                  <button @click="deleteGuide(guide.id)" class="px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Hapus
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div v-if="guides.length === 0" class="flex flex-col items-center justify-center py-16 px-4">
+          <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <p class="text-gray-600 font-medium">Tidak ada panduan</p>
+          <p class="text-gray-500 text-sm mt-1">Mulai dengan menambahkan panduan baru</p>
+        </div>
+      </div>
+
+      <!-- Form Modal -->
+      <div v-if="showForm" class="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-screen overflow-y-auto">
+          <!-- Modal Header -->
+          <div class="sticky top-0 bg-linear-to-r from-blue-50 to-blue-100 border-b border-blue-200 px-8 py-6 flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">
+                {{ editingGuide ? "Edit Panduan" : "Tambah Panduan Baru" }}
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">{{ editingGuide ? "Perbarui panduan yang sudah ada" : "Buat panduan troubleshooting baru" }}</p>
+            </div>
+            <button @click="closeForm()" class="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Judul</label>
-            <input v-model="form.title" type="text" class="w-full border border-gray-200 rounded px-3 py-2 text-sm" required />
-          </div>
+          <!-- Modal Content -->
+          <form @submit.prevent="handleSubmit" class="p-8 space-y-6">
+            <!-- Kategori & Judul Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">Kategori <span class="text-red-500">*</span></label>
+                <select v-model="form.category_id" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                  <option :value="null">Pilih Kategori</option>
+                  <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.icon }} {{ cat.title }}</option>
+                </select>
+              </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Masalah</label>
-            <textarea v-model="form.problem" class="w-full border border-gray-200 rounded px-3 py-2 text-sm h-24" required></textarea>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Solusi</label>
-            <div class="space-y-2">
-              <div v-for="(solution, index) in form.solutions" :key="index" class="flex gap-2">
-                <textarea v-model="form.solutions[index]" class="flex-1 border border-gray-200 rounded px-3 py-2 text-sm h-16" :placeholder="`Solusi ${index + 1}`" required></textarea>
-                <button v-if="form.solutions.length > 1" type="button" @click="removeSolution(index)" class="text-red-600 hover:text-red-700 font-medium px-2">Hapus</button>
+              <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">Judul Panduan <span class="text-red-500">*</span></label>
+                <input
+                  v-model="form.title"
+                  type="text"
+                  placeholder="Contoh: Printer Tidak Bisa Print"
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
               </div>
             </div>
-            <button type="button" @click="addSolution" class="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium">+ Tambah Solusi</button>
-          </div>
 
-          <div>
-            <label class="flex items-center">
-              <input v-model="form.is_active" type="checkbox" class="w-4 h-4 border-gray-300 rounded" />
-              <span class="ml-2 text-sm text-gray-700">Aktifkan panduan ini</span>
-            </label>
-          </div>
+            <!-- Masalah -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-900 mb-2">Deskripsi Masalah <span class="text-red-500">*</span></label>
+              <textarea
+                v-model="form.problem"
+                placeholder="Jelaskan masalah yang akan dipecahkan..."
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none"
+                required
+              ></textarea>
+            </div>
 
-          <div class="flex gap-3 pt-4 border-t border-gray-200">
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-              {{ editingGuide ? "Simpan Perubahan" : "Tambah Panduan" }}
-            </button>
-            <button type="button" @click="closeForm()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">Batal</button>
-          </div>
-        </form>
+            <!-- Solusi -->
+            <div>
+              <label class="flex text-sm font-semibold text-gray-900 mb-4 items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Solusi Langkah demi Langkah <span class="text-red-500">*</span>
+              </label>
+              <div class="space-y-3">
+                <div v-for="(solution, index) in form.solutions" :key="index" class="flex gap-3 items-start">
+                  <div class="shrink-0 mt-3">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold">
+                      {{ index + 1 }}
+                    </span>
+                  </div>
+                  <div class="flex-1">
+                    <textarea
+                      v-model="form.solutions[index]"
+                      :placeholder="`Langkah ${index + 1} - Jelaskan solusi dengan detail`"
+                      class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-20 resize-none"
+                      required
+                    ></textarea>
+                  </div>
+                  <button v-if="form.solutions.length > 1" type="button" @click="removeSolution(index)" class="shrink-0 mt-3 p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <button type="button" @click="addSolution" class="mt-4 inline-flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Tambah Solusi
+              </button>
+            </div>
+
+            <!-- Status -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <label class="flex items-center cursor-pointer">
+                <input v-model="form.is_active" type="checkbox" class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500" />
+                <span class="ml-3 text-sm font-medium text-gray-900">Panduan Aktif</span>
+                <span class="ml-2 text-xs text-gray-500">(Akan ditampilkan ke pengguna)</span>
+              </label>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 pt-6 border-t border-gray-200">
+              <button type="submit" class="flex-1 px-4 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {{ editingGuide ? "Simpan Perubahan" : "Tambah Panduan" }}
+              </button>
+              <button type="button" @click="closeForm()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">Batal</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>

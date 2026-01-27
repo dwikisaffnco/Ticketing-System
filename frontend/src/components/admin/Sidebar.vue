@@ -1,8 +1,9 @@
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { axiosInstance } from "@/plugins/axios";
+import feather from "feather-icons";
 
 const authStore = useAuthStore();
 const { logout } = authStore;
@@ -21,6 +22,14 @@ watch(
   { immediate: true },
 );
 
+watch(
+  () => route.name,
+  async () => {
+    await nextTick();
+    feather.replace();
+  },
+);
+
 const toggleUserMenu = () => {
   userMenuOpen.value = !userMenuOpen.value;
 };
@@ -28,6 +37,10 @@ const toggleUserMenu = () => {
 const handleLogout = async () => {
   await logout();
 };
+
+onMounted(() => {
+  feather.replace();
+});
 
 const backendBaseUrl = (axiosInstance.defaults.baseURL ?? "").replace(/\/api\/?$/, "");
 const logoUrl = `${backendBaseUrl}/logo/Logotype%20Black.png`;
@@ -99,7 +112,7 @@ const logoUrl = `${backendBaseUrl}/logo/Logotype%20Black.png`;
         v-motion="{ initial: { scale: 1 }, hovered: { scale: 1.05 }, tapped: { scale: 0.95 } }"
       >
         <i data-feather="book-open" class="w-5 h-5 mr-3"></i>
-        Kelola Panduan
+        Guides
       </RouterLink>
 
       <RouterLink
