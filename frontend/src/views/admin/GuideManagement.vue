@@ -114,24 +114,26 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen from-gray-50 to-gray-100 py-6">
-    <div class="max-w-7xl mx-auto px-4">
+    <div class="w-full px-0">
       <!-- Header -->
-      <div class="mb-8">
+      <div class="mb-8 px-6">
         <div class="flex justify-between items-start mb-6">
           <div>
             <h1 class="text-4xl font-bold text-gray-900 mb-2">Kelola Panduan</h1>
             <p class="text-gray-600">Tambah, edit, atau hapus panduan troubleshooting IT</p>
           </div>
-          <button @click="openForm()" class="px-6 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Tambah Panduan
-          </button>
+          <div class="flex gap-3">
+            <button @click="openForm()" class="px-6 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Tambah Panduan
+            </button>
+          </div>
         </div>
 
         <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 px-6">
           <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
             <p class="text-sm text-gray-600">Total Panduan</p>
             <p class="text-3xl font-bold text-gray-900 mt-1">{{ guides.length }}</p>
@@ -152,7 +154,7 @@ onMounted(() => {
       </div>
 
       <!-- Filters -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6 mx-6">
         <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -187,7 +189,7 @@ onMounted(() => {
       </div>
 
       <!-- Guides Table -->
-      <div v-if="!showForm" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <div v-if="!showForm" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mx-6">
         <!-- Loading State -->
         <div v-if="loading" class="flex items-center justify-center h-96">
           <div class="text-center">
@@ -267,9 +269,9 @@ onMounted(() => {
 
       <!-- Form Modal -->
       <div v-if="showForm" class="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-screen overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
           <!-- Modal Header -->
-          <div class="sticky top-0 bg-linear-to-r from-blue-50 to-blue-100 border-b border-blue-200 px-8 py-6 flex justify-between items-center">
+          <div class="bg-linear-to-r from-blue-50 to-blue-100 border-b border-blue-200 px-8 py-6 flex justify-between items-center shrink-0">
             <div>
               <h2 class="text-2xl font-bold text-gray-900">
                 {{ editingGuide ? "Edit Panduan" : "Tambah Panduan Baru" }}
@@ -283,10 +285,10 @@ onMounted(() => {
             </button>
           </div>
 
-          <!-- Modal Content -->
-          <form @submit.prevent="handleSubmit" class="p-8 space-y-6">
+          <!-- Modal Content - Single Column -->
+          <form id="guide-form" @submit.prevent="handleSubmit" class="overflow-y-auto flex-1 p-12 space-y-8">
             <!-- Kategori & Judul Row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-semibold text-gray-900 mb-2">Kategori <span class="text-red-500">*</span></label>
                 <select v-model="form.category_id" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
@@ -307,7 +309,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Masalah -->
+            <!-- Deskripsi Masalah -->
             <div>
               <label class="block text-sm font-semibold text-gray-900 mb-2">Deskripsi Masalah <span class="text-red-500">*</span></label>
               <textarea
@@ -318,18 +320,19 @@ onMounted(() => {
               ></textarea>
             </div>
 
-            <!-- Solusi -->
+            <!-- Solusi Langkah demi Langkah -->
             <div>
-              <label class="flex text-sm font-semibold text-gray-900 mb-4 items-center gap-2">
+              <label class="flex text-sm font-semibold text-gray-900 items-center gap-2 mb-4">
                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 Solusi Langkah demi Langkah <span class="text-red-500">*</span>
               </label>
-              <div class="space-y-3">
-                <div v-for="(solution, index) in form.solutions" :key="index" class="flex gap-3 items-start">
-                  <div class="shrink-0 mt-3">
-                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold">
+
+              <div class="space-y-4">
+                <div v-for="(solution, index) in form.solutions" :key="index" class="flex gap-4 items-start">
+                  <div class="shrink-0 mt-4">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold">
                       {{ index + 1 }}
                     </span>
                   </div>
@@ -337,18 +340,19 @@ onMounted(() => {
                     <textarea
                       v-model="form.solutions[index]"
                       :placeholder="`Langkah ${index + 1} - Jelaskan solusi dengan detail`"
-                      class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-20 resize-none"
+                      class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none"
                       required
                     ></textarea>
                   </div>
-                  <button v-if="form.solutions.length > 1" type="button" @click="removeSolution(index)" class="shrink-0 mt-3 p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
+                  <button v-if="form.solutions.length > 1" type="button" @click="removeSolution(index)" class="shrink-0 mt-4 p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
                   </button>
                 </div>
               </div>
-              <button type="button" @click="addSolution" class="mt-4 inline-flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium">
+
+              <button type="button" @click="addSolution" class="mt-6 inline-flex items-center gap-2 px-6 py-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -364,18 +368,18 @@ onMounted(() => {
                 <span class="ml-2 text-xs text-gray-500">(Akan ditampilkan ke pengguna)</span>
               </label>
             </div>
-
-            <!-- Actions -->
-            <div class="flex gap-3 pt-6 border-t border-gray-200">
-              <button type="submit" class="flex-1 px-4 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                {{ editingGuide ? "Simpan Perubahan" : "Tambah Panduan" }}
-              </button>
-              <button type="button" @click="closeForm()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">Batal</button>
-            </div>
           </form>
+
+          <!-- Actions - Fixed at Bottom -->
+          <div class="border-t border-gray-200 bg-gray-50 px-8 py-4 flex gap-3 shrink-0">
+            <button type="submit" form="guide-form" class="flex-1 px-4 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              {{ editingGuide ? "Simpan Perubahan" : "Tambah Panduan" }}
+            </button>
+            <button type="button" @click="closeForm()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">Batal</button>
+          </div>
         </div>
       </div>
     </div>
