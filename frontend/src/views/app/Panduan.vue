@@ -154,7 +154,7 @@ const selectCategory = (category) => {
               >
                 <span class="text-lg">{{ category.icon }}</span>
                 <span class="flex-1">{{ category.title }}</span>
-                <span :class="['text-xs px-2 py-1 rounded font-semibold', selectedCategory?.id === category.id ? 'bg-white bg-opacity-30 text-white' : 'bg-gray-300 text-gray-700']">{{
+                <span :class="['text-xs px-2 py-1 rounded font-semibold', selectedCategory?.id === category.id ? 'bg-white text-blue-600' : 'bg-gray-300 text-gray-700']">{{
                   guides.filter((g) => g.category_id === category.id).length
                 }}</span>
               </button>
