@@ -313,7 +313,7 @@ const parseText = (text) => {
                       </span>
                     </div>
                     <div class="flex-1">
-                      <div class="text-gray-700 text-base leading-relaxed">
+                      <div class="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
                         <template v-for="part in parseText(solution)" :key="part.content">
                           <span v-if="part.type === 'text'">{{ part.content }}</span>
                           <a v-else :href="part.url" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-700 underline font-medium">{{ part.content }}</a>
