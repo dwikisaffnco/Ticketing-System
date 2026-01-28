@@ -11,6 +11,23 @@ const currentGuide = ref(null);
 const loading = ref(true);
 const error = ref(null);
 
+const sortedCategories = computed(() => {
+  const sorted = [...categories.value].sort((a, b) => {
+    // Put "Important" and "Policy & Regulations" at the top
+    const priorityTitles = ["Important", "Policy & Regulations"];
+    const aIndex = priorityTitles.indexOf(a.title);
+    const bIndex = priorityTitles.indexOf(b.title);
+
+    if (aIndex !== -1 && bIndex === -1) return -1;
+    if (aIndex === -1 && bIndex !== -1) return 1;
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+
+    // Otherwise sort by order
+    return a.order - b.order;
+  });
+  return sorted;
+});
+
 const selectedCategoryGuides = computed(() => {
   if (!selectedCategory.value) return [];
   return guides.value.filter((guide) => guide.category_id === selectedCategory.value.id);
@@ -127,7 +144,7 @@ const selectCategory = (category) => {
             </h2>
             <div class="space-y-2">
               <button
-                v-for="category in categories"
+                v-for="category in sortedCategories"
                 :key="category.id"
                 @click="selectCategory(category)"
                 :class="[
@@ -137,9 +154,9 @@ const selectCategory = (category) => {
               >
                 <span class="text-lg">{{ category.icon }}</span>
                 <span class="flex-1">{{ category.title }}</span>
-                <span v-if="guides.filter((g) => g.category_id === category.id).length > 0" class="text-xs bg-opacity-20 px-2 py-1 rounded" :class="selectedCategory?.id === category.id ? 'bg-white text-white' : 'bg-gray-200 text-gray-600'">
-                  {{ guides.filter((g) => g.category_id === category.id).length }}
-                </span>
+                <span :class="['text-xs px-2 py-1 rounded font-semibold', selectedCategory?.id === category.id ? 'bg-white bg-opacity-30 text-white' : 'bg-gray-300 text-gray-700']">{{
+                  guides.filter((g) => g.category_id === category.id).length
+                }}</span>
               </button>
             </div>
           </div>
@@ -159,6 +176,16 @@ const selectCategory = (category) => {
                   <h2 class="text-3xl font-bold text-gray-900">{{ selectedCategory?.title }}</h2>
                   <p class="text-gray-600 mt-1">{{ selectedCategoryGuides.length }} panduan tersedia</p>
                 </div>
+              </div>
+              <div v-if="selectedCategory?.description" class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex gap-3">
+                <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <p class="text-amber-900 font-semibold text-sm">{{ selectedCategory.description }}</p>
               </div>
               <p class="text-gray-600 text-sm mt-4">Pilih salah satu panduan di bawah untuk melihat solusi lengkap dan langkah-langkah yang detail</p>
             </div>
