@@ -58,11 +58,13 @@ class GuideSeeder extends Seeder
             [
                 'title' => 'Important',
                 'icon' => '⭐',
+                'description' => '⚠️ MUST READ - Panduan penting yang wajib dibaca oleh semua pengguna',
                 'order' => 8,
             ],
             [
                 'title' => 'Policy & Regulations',
                 'icon' => '📋',
+                'description' => '⚠️ MUST READ - Kebijakan dan regulasi perusahaan yang harus dipatuhi',
                 'order' => 9,
             ],
         ];
