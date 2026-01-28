@@ -64,6 +64,48 @@ const selectCategory = (category) => {
   selectedCategory.value = category;
   currentGuide.value = null;
 };
+
+const parseText = (text) => {
+  if (!text) return [];
+
+  // Regular expression to find URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = urlRegex.exec(text)) !== null) {
+    // Add text before URL
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "text",
+        content: text.slice(lastIndex, match.index),
+      });
+    }
+
+    // Add URL
+    const url = match[0];
+    // Remove trailing punctuation if present
+    const cleanUrl = url.replace(/[.,;:!?\)]+$/, "");
+    parts.push({
+      type: "link",
+      content: cleanUrl,
+      url: cleanUrl,
+    });
+
+    lastIndex = match.index + cleanUrl.length;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push({
+      type: "text",
+      content: text.slice(lastIndex),
+    });
+  }
+
+  return parts.length > 0 ? parts : [{ type: "text", content: text }];
+};
 </script>
 
 <template>
@@ -271,7 +313,12 @@ const selectCategory = (category) => {
                       </span>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-700 text-base leading-relaxed">{{ solution }}</p>
+                      <div class="text-gray-700 text-base leading-relaxed">
+                        <template v-for="part in parseText(solution)" :key="part.content">
+                          <span v-if="part.type === 'text'">{{ part.content }}</span>
+                          <a v-else :href="part.url" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-700 underline font-medium">{{ part.content }}</a>
+                        </template>
+                      </div>
                     </div>
                   </div>
                 </div>
