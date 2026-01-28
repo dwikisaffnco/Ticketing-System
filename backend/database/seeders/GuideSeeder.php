@@ -55,6 +55,16 @@ class GuideSeeder extends Seeder
                 'icon' => '📱',
                 'order' => 7,
             ],
+            [
+                'title' => 'Important',
+                'icon' => '⭐',
+                'order' => 8,
+            ],
+            [
+                'title' => 'Policy & Regulations',
+                'icon' => '📋',
+                'order' => 9,
+            ],
         ];
 
         $categoryMap = [];
