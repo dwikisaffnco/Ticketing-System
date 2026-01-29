@@ -68,14 +68,15 @@ const selectCategory = (category) => {
 const parseText = (text) => {
   if (!text) return [];
 
-  // Regular expression to find URLs
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  // Regular expression to find URLs and domains
+  // Matches: https://example.com, http://example.com, example.com, subdomain.example.com
+  const linkRegex = /(https?:\/\/[^\s]+|(?:^|[\s])(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?)/g;
   const parts = [];
   let lastIndex = 0;
   let match;
 
-  while ((match = urlRegex.exec(text)) !== null) {
-    // Add text before URL
+  while ((match = linkRegex.exec(text)) !== null) {
+    // Add text before link
     if (match.index > lastIndex) {
       parts.push({
         type: "text",
@@ -83,17 +84,23 @@ const parseText = (text) => {
       });
     }
 
-    // Add URL
-    const url = match[0];
+    let urlText = match[0].trim();
     // Remove trailing punctuation if present
-    const cleanUrl = url.replace(/[.,;:!?\)]+$/, "");
+    urlText = urlText.replace(/[.,;:!?\)]+$/, "");
+    
+    // Build full URL if it's just a domain
+    let fullUrl = urlText;
+    if (!urlText.startsWith("http://") && !urlText.startsWith("https://")) {
+      fullUrl = "https://" + urlText;
+    }
+
     parts.push({
       type: "link",
-      content: cleanUrl,
-      url: cleanUrl,
+      content: urlText,
+      url: fullUrl,
     });
 
-    lastIndex = match.index + cleanUrl.length;
+    lastIndex = match.index + match[0].length - (match[0].length - urlText.length);
   }
 
   // Add remaining text
@@ -109,28 +116,28 @@ const parseText = (text) => {
 </script>
 
 <template>
-  <div class="min-h-screen from-gray-50 to-gray-100 py-8 px-4">
+  <div class="min-h-screen from-gray-50 to-gray-100 py-4 md:py-8 px-3 md:px-4">
     <div class="max-w-7xl mx-auto">
       <!-- Header Section -->
-      <div class="mb-10">
+      <div class="mb-5 md:mb-10">
         <div class="flex justify-between items-start mb-6">
           <div>
-            <div class="flex flex-col items-start gap-3 mb-2">
-              <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col items-start gap-2 md:gap-3 mb-2">
+              <div class="w-9 h-9 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17s4.5 10.747 10 10.747c5.5 0 10-4.998 10-10.747S17.5 6.253 12 6.253z"></path>
                 </svg>
               </div>
               <div>
-                <h1 class="text-2xl md:text-4xl font-bold text-gray-900">Panduan Troubleshooting IT</h1>
-                <p class="text-gray-600 text-xs md:text-sm mt-1">Solusi cepat untuk masalah IT yang umum dihadapi</p>
+                <h1 class="text-xl md:text-4xl font-bold text-gray-900 leading-tight">Panduan Troubleshooting IT</h1>
+                <p class="text-gray-600 text-xs md:text-sm mt-0.5 md:mt-1">Solusi cepat untuk masalah IT yang umum dihadapi</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="hidden md:grid grid-cols-3 gap-4 mb-6">
           <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
             <p class="text-sm text-gray-600">Total Kategori</p>
             <p class="text-2xl font-bold text-gray-900 mt-1">{{ categories.length }}</p>
@@ -172,7 +179,7 @@ const parseText = (text) => {
       <div v-else class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
         <!-- Sidebar Categories -->
         <div class="lg:col-span-1">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 lg:p-6 lg:sticky lg:top-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 md:p-4 lg:p-6 lg:sticky lg:top-6">
             <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
               <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -205,11 +212,11 @@ const parseText = (text) => {
         </div>
 
         <!-- Main Content Area -->
-        <div class="lg:col-span-3">
+        <div class="lg:col-span-3 space-y-4 md:space-y-6">
           <!-- Category Guide List -->
-          <div v-if="!currentGuide" class="space-y-6">
+          <div v-if="!currentGuide" class="space-y-4 md:space-y-6">
             <!-- Category Header -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-8">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 lg:p-8">
               <div class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 mb-4">
                 <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-xl md:text-2xl shrink-0">
                   {{ selectedCategory?.icon }}
@@ -233,25 +240,25 @@ const parseText = (text) => {
             </div>
 
             <!-- Guides Grid -->
-            <div v-if="selectedCategoryGuides.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div v-if="selectedCategoryGuides.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <button
                 v-for="guide in selectedCategoryGuides"
                 :key="guide.id"
                 @click="selectGuide(guide)"
-                class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg hover:border-blue-300 transition-all duration-200 text-left group"
+                class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 hover:shadow-lg hover:border-blue-300 transition-all duration-200 text-left group"
               >
                 <div class="flex items-start justify-between mb-2">
-                  <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-base flex-1">
+                  <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm md:text-base flex-1">
                     {{ guide.title }}
                   </h3>
-                  <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-blue-600 transition-colors shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </div>
-                <p class="text-sm text-gray-600 line-clamp-2">{{ guide.problem }}</p>
-                <div class="mt-4 pt-4 border-t border-gray-100">
+                <p class="text-xs md:text-sm text-gray-600 line-clamp-2">{{ guide.problem }}</p>
+                <div class="mt-3 pt-3 border-t border-gray-100">
                   <div class="flex items-center text-xs text-gray-500">
-                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-3 h-3 md:w-4 md:h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M5 9V7a1 1 0 011-1h8a1 1 0 011 1v2m0 0a2 2 0 100-4H5a2 2 0 000 4m0 0V5a1 1 0 011-1h8a1 1 0 011 1v4m-6 4v2m0 0v2m0-6v-2m6 6v2m0 0v2m0-6v-2" clip-rule="evenodd"></path>
                     </svg>
                     {{ guide.solutions?.length || 0 }} solusi
@@ -276,7 +283,7 @@ const parseText = (text) => {
           </div>
 
           <!-- Guide Detail -->
-          <div v-else class="space-y-6">
+          <div v-else class="space-y-4 md:space-y-6">
             <!-- Back Button -->
             <button @click="currentGuide = null" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm group">
               <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -286,34 +293,34 @@ const parseText = (text) => {
             </button>
 
             <!-- Guide Content -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 lg:p-8">
               <!-- Header -->
-              <div class="mb-6 md:mb-8">
-                <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <div class="mb-4 md:mb-6 lg:mb-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 mb-2 md:mb-3">
                   <span class="text-2xl md:text-3xl">{{ selectedCategory?.icon }}</span>
                   <span class="text-xs md:text-sm font-medium text-blue-600 bg-blue-50 px-2 md:px-3 py-1 rounded-full">
                     {{ selectedCategory?.title }}
                   </span>
                 </div>
-                <h1 class="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-3">{{ currentGuide.title }}</h1>
-                <p class="text-base md:text-lg text-gray-600">{{ currentGuide.problem }}</p>
+                <h1 class="text-lg md:text-4xl font-bold text-gray-900 mb-2 md:mb-3">{{ currentGuide.title }}</h1>
+                <p class="text-sm md:text-lg text-gray-600">{{ currentGuide.problem }}</p>
               </div>
 
-              <!-- Solutions Section -->
-              <div class="mb-6 md:mb-8 border-t border-gray-200 pt-6 md:pt-8">
-                <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2">
+                <!-- Solutions Section -->
+              <div class="mb-4 md:mb-6 lg:mb-8 border-t border-gray-200 pt-4 md:pt-6 lg:pt-8">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 flex items-center gap-2">
                   <span class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-600 text-white text-xs md:text-sm font-bold">✓</span>
                   Solusi Langkah demi Langkah
                 </h3>
                 <div class="space-y-3 md:space-y-4">
-                  <div v-for="(solution, index) in currentGuide.solutions" :key="index" class="flex gap-3 md:gap-4">
+                  <div v-for="(solution, index) in currentGuide.solutions" :key="index" class="flex gap-2 md:gap-3">
                     <div class="flex items-start shrink-0">
-                      <span class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-linear-to-br from-blue-600 to-blue-700 text-white text-xs md:text-sm font-bold mt-0 md:mt-1">
+                      <span class=\"flex items-center justify-center w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full bg-linear-to-br from-blue-600 to-blue-700 text-white text-xs font-bold mt-0 md:mt-1 shrink-0\">
                         {{ index + 1 }}
                       </span>
                     </div>
-                    <div class="flex-1">
-                      <div class="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
+                    <div class="flex-1 min-w-0">
+                      <div class=\"text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-wrap\">
                         <template v-for="part in parseText(solution)" :key="part.content">
                           <span v-if="part.type === 'text'">{{ part.content }}</span>
                           <a v-else :href="part.url" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-700 underline font-medium">{{ part.content }}</a>
@@ -325,11 +332,11 @@ const parseText = (text) => {
               </div>
 
               <!-- Tip Section -->
-              <div class="bg-linear-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4 md:p-6">
-                <div class="flex gap-3 md:gap-4">
-                  <div class="text-xl md:text-2xl shrink-0">💡</div>
+              <div class="bg-linear-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-3 md:p-4 lg:p-6">
+                <div class="flex gap-2 md:gap-3">
+                  <div class="text-lg md:text-xl lg:text-2xl shrink-0 mt-0.5">💡</div>
                   <div>
-                    <h4 class="font-bold text-amber-900 mb-1 md:mb-2 text-sm md:text-base">Tips Penting</h4>
+                    <h4 class="font-bold text-amber-900 mb-1 md:mb-2 text-xs md:text-sm lg:text-base">Tips Penting</h4>
                     <p class="text-amber-800 text-xs md:text-sm leading-relaxed">
                       Jika masalah belum teratasi setelah mencoba semua solusi di atas, jangan ragu untuk menghubungi Team IT. Sertakan informasi detail tentang masalah yang Anda hadapi, screenshot error (jika ada), dan langkah-langkah yang
                       sudah Anda coba untuk bantuan yang lebih cepat.
