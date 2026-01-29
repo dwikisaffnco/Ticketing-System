@@ -115,15 +115,15 @@ const parseText = (text) => {
       <div class="mb-10">
         <div class="flex justify-between items-start mb-6">
           <div>
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col items-start gap-3 mb-2">
+              <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17s4.5 10.747 10 10.747c5.5 0 10-4.998 10-10.747S17.5 6.253 12 6.253z"></path>
                 </svg>
               </div>
               <div>
-                <h1 class="text-4xl font-bold text-gray-900">Panduan Troubleshooting IT</h1>
-                <p class="text-gray-600 text-sm mt-1">Solusi cepat untuk masalah IT yang umum dihadapi</p>
+                <h1 class="text-2xl md:text-4xl font-bold text-gray-900">Panduan Troubleshooting IT</h1>
+                <p class="text-gray-600 text-xs md:text-sm mt-1">Solusi cepat untuk masalah IT yang umum dihadapi</p>
               </div>
             </div>
           </div>
@@ -169,10 +169,10 @@ const parseText = (text) => {
       </div>
 
       <!-- Main Content -->
-      <div v-else class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div v-else class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
         <!-- Sidebar Categories -->
         <div class="lg:col-span-1">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 lg:p-6 lg:sticky lg:top-6">
             <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
               <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -209,14 +209,14 @@ const parseText = (text) => {
           <!-- Category Guide List -->
           <div v-if="!currentGuide" class="space-y-6">
             <!-- Category Header -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-              <div class="flex items-center gap-4 mb-4">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-8">
+              <div class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 mb-4">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-xl md:text-2xl shrink-0">
                   {{ selectedCategory?.icon }}
                 </div>
                 <div>
-                  <h2 class="text-3xl font-bold text-gray-900">{{ selectedCategory?.title }}</h2>
-                  <p class="text-gray-600 mt-1">{{ selectedCategoryGuides.length }} panduan tersedia</p>
+                  <h2 class="text-xl md:text-3xl font-bold text-gray-900">{{ selectedCategory?.title }}</h2>
+                  <p class="text-gray-600 mt-1 text-sm">{{ selectedCategoryGuides.length }} panduan tersedia</p>
                 </div>
               </div>
               <div v-if="selectedCategory?.description" class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex gap-3">
@@ -286,29 +286,29 @@ const parseText = (text) => {
             </button>
 
             <!-- Guide Content -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-8">
               <!-- Header -->
-              <div class="mb-8">
-                <div class="flex items-center gap-3 mb-4">
-                  <span class="text-3xl">{{ selectedCategory?.icon }}</span>
-                  <span class="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <div class="mb-6 md:mb-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                  <span class="text-2xl md:text-3xl">{{ selectedCategory?.icon }}</span>
+                  <span class="text-xs md:text-sm font-medium text-blue-600 bg-blue-50 px-2 md:px-3 py-1 rounded-full">
                     {{ selectedCategory?.title }}
                   </span>
                 </div>
-                <h1 class="text-4xl font-bold text-gray-900 mb-3">{{ currentGuide.title }}</h1>
-                <p class="text-lg text-gray-600">{{ currentGuide.problem }}</p>
+                <h1 class="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-3">{{ currentGuide.title }}</h1>
+                <p class="text-base md:text-lg text-gray-600">{{ currentGuide.problem }}</p>
               </div>
 
               <!-- Solutions Section -->
-              <div class="mb-8 border-t border-gray-200 pt-8">
-                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <span class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold">✓</span>
+              <div class="mb-6 md:mb-8 border-t border-gray-200 pt-6 md:pt-8">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2">
+                  <span class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-600 text-white text-xs md:text-sm font-bold">✓</span>
                   Solusi Langkah demi Langkah
                 </h3>
-                <div class="space-y-4">
-                  <div v-for="(solution, index) in currentGuide.solutions" :key="index" class="flex gap-4">
-                    <div class="flex items-start">
-                      <span class="flex items-center justify-center w-8 h-8 rounded-full bg-linear-to-br from-blue-600 to-blue-700 text-white text-sm font-bold shrink-0 mt-1">
+                <div class="space-y-3 md:space-y-4">
+                  <div v-for="(solution, index) in currentGuide.solutions" :key="index" class="flex gap-3 md:gap-4">
+                    <div class="flex items-start shrink-0">
+                      <span class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-linear-to-br from-blue-600 to-blue-700 text-white text-xs md:text-sm font-bold mt-0 md:mt-1">
                         {{ index + 1 }}
                       </span>
                     </div>
@@ -325,12 +325,12 @@ const parseText = (text) => {
               </div>
 
               <!-- Tip Section -->
-              <div class="bg-linear-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-6">
-                <div class="flex gap-4">
-                  <div class="text-2xl shrink-0">💡</div>
+              <div class="bg-linear-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4 md:p-6">
+                <div class="flex gap-3 md:gap-4">
+                  <div class="text-xl md:text-2xl shrink-0">💡</div>
                   <div>
-                    <h4 class="font-bold text-amber-900 mb-2">Tips Penting</h4>
-                    <p class="text-amber-800 text-sm leading-relaxed">
+                    <h4 class="font-bold text-amber-900 mb-1 md:mb-2 text-sm md:text-base">Tips Penting</h4>
+                    <p class="text-amber-800 text-xs md:text-sm leading-relaxed">
                       Jika masalah belum teratasi setelah mencoba semua solusi di atas, jangan ragu untuk menghubungi Team IT. Sertakan informasi detail tentang masalah yang Anda hadapi, screenshot error (jika ada), dan langkah-langkah yang
                       sudah Anda coba untuk bantuan yang lebih cepat.
                     </p>
