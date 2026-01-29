@@ -87,7 +87,7 @@ const parseText = (text) => {
     let urlText = match[0].trim();
     // Remove trailing punctuation if present
     urlText = urlText.replace(/[.,;:!?\)]+$/, "");
-    
+
     // Build full URL if it's just a domain
     let fullUrl = urlText;
     if (!urlText.startsWith("http://") && !urlText.startsWith("https://")) {
@@ -216,7 +216,7 @@ const parseText = (text) => {
           <!-- Category Guide List -->
           <div v-if="!currentGuide" class="space-y-4 md:space-y-6">
             <!-- Category Header -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 lg:p-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 lg:p-8">
               <div class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 mb-4">
                 <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-xl md:text-2xl shrink-0">
                   {{ selectedCategory?.icon }}
@@ -306,7 +306,7 @@ const parseText = (text) => {
                 <p class="text-sm md:text-lg text-gray-600">{{ currentGuide.problem }}</p>
               </div>
 
-                <!-- Solutions Section -->
+              <!-- Solutions Section -->
               <div class="mb-4 md:mb-6 lg:mb-8 border-t border-gray-200 pt-4 md:pt-6 lg:pt-8">
                 <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 flex items-center gap-2">
                   <span class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-600 text-white text-xs md:text-sm font-bold">✓</span>
@@ -315,12 +315,12 @@ const parseText = (text) => {
                 <div class="space-y-3 md:space-y-4">
                   <div v-for="(solution, index) in currentGuide.solutions" :key="index" class="flex gap-2 md:gap-3">
                     <div class="flex items-start shrink-0">
-                      <span class=\"flex items-center justify-center w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full bg-linear-to-br from-blue-600 to-blue-700 text-white text-xs font-bold mt-0 md:mt-1 shrink-0\">
+                      <span class="flex items-center justify-center w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full bg-linear-to-br from-blue-600 to-blue-700 text-white text-xs font-bold mt-0 md:mt-1 shrink-0">
                         {{ index + 1 }}
                       </span>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <div class=\"text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-wrap\">
+                      <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-wrap">
                         <template v-for="part in parseText(solution)" :key="part.content">
                           <span v-if="part.type === 'text'">{{ part.content }}</span>
                           <a v-else :href="part.url" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-700 underline font-medium">{{ part.content }}</a>
