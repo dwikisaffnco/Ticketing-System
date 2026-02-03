@@ -2,7 +2,7 @@
 import { onMounted } from "vue";
 import feather from "feather-icons";
 
-const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBA2dv3Hil88PQeDrhvaERh8H5qt-JVbOsFaCKgAROHGMx-Uie1hgliPby-90AwnuI2RNBQzmYkgRQ/pubhtml?widget=true&headers=false";
+const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsLop-Kuh81fk3Ys4eUE8LOXJUzX5qelcvEFhC-Zil78oShUO8c--AxLs4nvsZ_gPJxiUyVKIZsWkB/pubhtml?widget=true&amp;headers=false";
 
 onMounted(() => {
   feather.replace();
