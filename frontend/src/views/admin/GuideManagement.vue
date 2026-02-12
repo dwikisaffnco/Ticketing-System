@@ -215,110 +215,113 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Desktop Table View (hidden on mobile) -->
-        <div v-else-if="guides.length > 0" class="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-          <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Judul</th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Kategori</th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Solusi</th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Aksi</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="guide in guides" :key="guide.id" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4">
-                  <div>
-                    <p class="font-medium text-gray-900">{{ guide.title }}</p>
-                    <p class="text-xs text-gray-500 mt-1 line-clamp-1">{{ guide.problem }}</p>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-2">
-                    <span class="text-lg">{{ guide.category?.icon }}</span>
-                    <span class="text-sm text-gray-600">{{ guide.category?.title }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5.951-1.429 5.951 1.429a1 1 0 001.169-1.409l-7-14z"></path>
-                    </svg>
-                    {{ guide.solutions?.length || 0 }} solusi
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <span :class="['inline-flex items-center px-3 py-1 rounded-full text-xs font-medium', guide.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800']">
-                    <span class="w-2 h-2 rounded-full mr-2" :class="guide.is_active ? 'bg-green-600' : 'bg-gray-600'"></span>
-                    {{ guide.is_active ? "Aktif" : "Nonaktif" }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <button @click="openForm(guide)" class="px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium flex items-center gap-1">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        <!-- Content when guides exist -->
+        <div v-else-if="guides.length > 0">
+          <!-- Desktop Table View (hidden on mobile) -->
+          <div class="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Judul</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Kategori</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Solusi</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr v-for="guide in guides" :key="guide.id" class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4">
+                    <div>
+                      <p class="font-medium text-gray-900">{{ guide.title }}</p>
+                      <p class="text-xs text-gray-500 mt-1 line-clamp-1">{{ guide.problem }}</p>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                      <span class="text-lg">{{ guide.category?.icon }}</span>
+                      <span class="text-sm text-gray-600">{{ guide.category?.title }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5.951-1.429 5.951 1.429a1 1 0 001.169-1.409l-7-14z"></path>
                       </svg>
-                      Edit
-                    </button>
-                    <button @click="deleteGuide(guide.id)" class="px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium flex items-center gap-1">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                      </svg>
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                      {{ guide.solutions?.length || 0 }} solusi
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span :class="['inline-flex items-center px-3 py-1 rounded-full text-xs font-medium', guide.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800']">
+                      <span class="w-2 h-2 rounded-full mr-2" :class="guide.is_active ? 'bg-green-600' : 'bg-gray-600'"></span>
+                      {{ guide.is_active ? "Aktif" : "Nonaktif" }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <button @click="openForm(guide)" class="px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit
+                      </button>
+                      <button @click="deleteGuide(guide.id)" class="px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Hapus
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        <!-- Mobile/Tablet Card View (shown on small screens) -->
-        <div v-else-if="guides.length > 0" class="lg:hidden space-y-4">
-          <div v-for="guide in guides" :key="guide.id" class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-            <!-- Header -->
-            <div class="flex items-start justify-between gap-3 mb-3">
-              <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">{{ guide.title }}</h3>
-                <p class="text-xs sm:text-sm text-gray-500 line-clamp-2">{{ guide.problem }}</p>
+          <!-- Mobile/Tablet Card View (shown on small screens) -->
+          <div class="lg:hidden space-y-4">
+            <div v-for="guide in guides" :key="guide.id" class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+              <!-- Header -->
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">{{ guide.title }}</h3>
+                  <p class="text-xs sm:text-sm text-gray-500 line-clamp-2">{{ guide.problem }}</p>
+                </div>
+                <span :class="['inline-flex items-center px-2 py-1 rounded-full text-xs font-medium shrink-0', guide.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800']">
+                  <span class="w-1.5 h-1.5 rounded-full mr-1.5" :class="guide.is_active ? 'bg-green-600' : 'bg-gray-600'"></span>
+                  {{ guide.is_active ? "Aktif" : "Nonaktif" }}
+                </span>
               </div>
-              <span :class="['inline-flex items-center px-2 py-1 rounded-full text-xs font-medium shrink-0', guide.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800']">
-                <span class="w-1.5 h-1.5 rounded-full mr-1.5" :class="guide.is_active ? 'bg-green-600' : 'bg-gray-600'"></span>
-                {{ guide.is_active ? "Aktif" : "Nonaktif" }}
-              </span>
-            </div>
 
-            <!-- Meta Info -->
-            <div class="flex flex-wrap items-center gap-3 mb-3 pb-3 border-b border-gray-100">
-              <div class="flex items-center gap-1.5">
-                <span class="text-base sm:text-lg">{{ guide.category?.icon }}</span>
-                <span class="text-xs sm:text-sm text-gray-600">{{ guide.category?.title }}</span>
+              <!-- Meta Info -->
+              <div class="flex flex-wrap items-center gap-3 mb-3 pb-3 border-b border-gray-100">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-base sm:text-lg">{{ guide.category?.icon }}</span>
+                  <span class="text-xs sm:text-sm text-gray-600">{{ guide.category?.title }}</span>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5.951-1.429 5.951 1.429a1 1 0 001.169-1.409l-7-14z"></path>
+                  </svg>
+                  {{ guide.solutions?.length || 0 }} solusi
+                </span>
               </div>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5.951-1.429 5.951 1.429a1 1 0 001.169-1.409l-7-14z"></path>
-                </svg>
-                {{ guide.solutions?.length || 0 }} solusi
-              </span>
-            </div>
 
-            <!-- Actions -->
-            <div class="flex items-center gap-2">
-              <button @click="openForm(guide)" class="flex-1 px-3 py-2 text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-                Edit
-              </button>
-              <button @click="deleteGuide(guide.id)" class="flex-1 px-3 py-2 text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-                Hapus
-              </button>
+              <!-- Actions -->
+              <div class="flex items-center gap-2">
+                <button @click="openForm(guide)" class="flex-1 px-3 py-2 text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                  Edit
+                </button>
+                <button @click="deleteGuide(guide.id)" class="flex-1 px-3 py-2 text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Hapus
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -334,7 +337,7 @@ onMounted(() => {
       </div>
 
       <!-- Form Modal -->
-      <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4">
+      <div v-if="showForm" class="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4">
         <div class="bg-white sm:rounded-xl shadow-2xl w-full h-full sm:h-auto sm:max-w-4xl sm:max-h-[90vh] flex flex-col">
           <!-- Modal Header -->
           <div class="bg-linear-to-r from-blue-50 to-blue-100 border-b border-blue-200 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 flex justify-between items-start sm:items-center shrink-0">
