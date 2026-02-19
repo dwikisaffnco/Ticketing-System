@@ -8,6 +8,7 @@ use App\Http\Controllers\GuideController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserLoginSessionController;
+use App\Http\Controllers\GeminiProxyController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -72,5 +73,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ticket/{code}/attachment/download', [TicketController::class, 'downloadTicketAttachment']);
     Route::get('/ticket-reply/{code}/{replyId}/attachment/view', [TicketController::class, 'serveTicketReplyAttachment']);
     Route::get('/ticket-reply/{code}/{replyId}/attachment/download', [TicketController::class, 'downloadTicketReplyAttachment']);
+    Route::post('/chat', [GeminiProxyController::class, 'chat']);
 });
 
