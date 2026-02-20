@@ -22,14 +22,14 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: wikiarlnm/saffnco_ticket_backend_app:latest
+          tags: itsaffnco/saffnco_ticket_backend_app:latest
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: wikiarlnm/saffnco_ticket_frontend_app:latest
+          tags: itsaffnco/saffnco_ticket_frontend_app:latest
 
   deploy:
     needs: build-and-push
@@ -57,7 +57,7 @@ jobs:
               docker network create ticketing-frontend-net
 
             echo "Deploying Backend..."
-            docker pull wikiarlnm/saffnco_ticket_backend_app:latest
+            docker pull itsaffnco/saffnco_ticket_backend_app:latest
 
             docker stop ticketing-backend || true
             docker rm ticketing-backend || true
@@ -78,7 +78,7 @@ jobs:
               --memory 8G \
               --env-file backend.tmp.env \
               -v /DATA/AppData/ticketing/report:/var/www/html/storage/app/attachments \
-              wikiarlnm/saffnco_ticket_backend_app:latest
+              itsaffnco/saffnco_ticket_backend_app:latest
 
             # Wait for container to be ready and setup storage
             sleep 5
@@ -95,7 +95,7 @@ jobs:
             rm backend.tmp.env
 
             echo "Deploying Frontend..."
-            docker pull wikiarlnm/saffnco_ticket_frontend_app:latest
+            docker pull itsaffnco/saffnco_ticket_frontend_app:latest
             docker stop ticketing-frontend || true
             docker rm ticketing-frontend || true
 
@@ -106,7 +106,7 @@ jobs:
               -p 3000:80 \
               --cpu-shares 1024 \
               --memory 8G \
-              wikiarlnm/saffnco_ticket_frontend_app:latest
+              itsaffnco/saffnco_ticket_frontend_app:latest
 
             docker image prune -f
             echo "Deployment completed."

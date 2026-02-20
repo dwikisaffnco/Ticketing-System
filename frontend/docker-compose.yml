@@ -3,7 +3,7 @@ version: "3.9"
 services:
   ticketing-frontend:
     container_name: ticketing-frontend
-    image: wikiarlnm/saffnco_ticket_frontend_app:latest
+    image: itsaffnco/saffnco_ticket_frontend_app:latest
     pull_policy: always
     ports:
       - "3000:80"

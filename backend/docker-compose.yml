@@ -1,19 +1,19 @@
 version: "3.9"
 
 services:
-  ticketing-backend:
-    container_name: ticketing-backend
-    image: wikiarlnm/saffnco_ticket_backend_app:latest
-    pull_policy: always
-    ports:
-      - "5000:80"
-    volumes:
-      - /DATA/AppData/ticketing/backend:/var/www/html
-    privileged: true
-    restart: unless-stopped
-    networks:
-      - default
+    ticketing-backend:
+        container_name: ticketing-backend
+        image: itsaffnco/saffnco_ticket_backend_app:latest
+        pull_policy: always
+        ports:
+            - "5000:80"
+        volumes:
+            - /DATA/AppData/ticketing/backend:/var/www/html
+        privileged: true
+        restart: unless-stopped
+        networks:
+            - default
 
 networks:
-  default:
-    driver: bridge
+    default:
+        driver: bridge
